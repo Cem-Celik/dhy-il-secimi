@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>130. Dönem DHY Genel Cerrahi Münhal Değerlendirmesi</title>
+<style>
+  :root{
+    --ink:#141b22; --muted:#5f6f7e; --line:#dde4ea; --bg:#f4f6f8;
+    --accent:#0f4c81; --accent2:#0d3f6b; --good:#1a7f4b; --mid:#b8860b; --bad:#b23b3b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Segoe UI',system-ui,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  header{background:var(--accent);color:#fff;padding:22px 26px}
+  header h1{margin:0 0 6px;font-size:1.35rem;font-weight:600}
+  header p{margin:0;opacity:.9;font-size:.88rem;max-width:900px;line-height:1.5}
+  .wrap{max-width:1500px;margin:0 auto;padding:18px 26px 60px}
+
+  .panel{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+  .panel h2{margin:0 0 12px;font-size:.95rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+
+  .weights{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .w{display:flex;flex-direction:column;gap:5px}
+  .w label{font-size:.85rem;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+  .w label span{color:var(--accent);font-variant-numeric:tabular-nums}
+  .w input[type=range]{width:100%;accent-color:var(--accent)}
+  .w small{color:var(--muted);font-size:.72rem;line-height:1.35}
+
+  .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .filters input[type=text],.filters select{padding:8px 10px;border:1px solid var(--line);border-radius:7px;font-size:.88rem}
+  .filters input[type=text]{flex:1;min-width:200px}
+  .chk{display:flex;align-items:center;gap:6px;font-size:.85rem;color:var(--muted)}
+  button.reset{padding:8px 14px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:.85rem}
+  button.reset:hover{background:var(--bg)}
+
+  .stats{font-size:.85rem;color:var(--muted);margin:4px 0 12px}
+  .stats b{color:var(--accent)}
+
+  .tblwrap{background:#fff;border:1px solid var(--line);border-radius:10px;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:.85rem;min-width:1150px}
+  thead th{background:var(--accent);color:#fff;padding:10px 9px;text-align:left;cursor:pointer;user-select:none;white-space:nowrap;position:sticky;top:0;z-index:5;font-weight:600}
+  thead th:hover{background:var(--accent2)}
+  thead th.num{text-align:center}
+  thead th .ar{font-size:.7rem;opacity:.85;margin-left:2px}
+  tbody td{padding:9px;border-top:1px solid var(--line);vertical-align:top}
+  tbody tr:nth-child(even){background:#fbfcfd}
+  tbody tr:hover{background:#eef4fa}
+  td.num{text-align:center;font-variant-numeric:tabular-nums}
+  td.hosp{min-width:230px}
+  td.il{font-weight:600;white-space:nowrap}
+  .rank{font-weight:700;color:var(--muted);width:34px;text-align:center}
+  .score{font-weight:700;font-size:.95rem;border-radius:5px;padding:3px 7px;display:inline-block;min-width:44px}
+  .s-hi{background:#e3f4ea;color:var(--good)}
+  .s-md{background:#fdf3dd;color:var(--mid)}
+  .s-lo{background:#fbe6e6;color:var(--bad)}
+  .bar{height:5px;background:var(--line);border-radius:3px;margin-top:4px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--accent)}
+  .na{color:#a9b4bf;font-style:italic;font-size:.8rem}
+  .toggle-note{cursor:pointer;color:var(--accent);font-size:.78rem;text-decoration:underline;white-space:nowrap}
+  tr.noterow td{background:#f7fafc;font-size:.83rem;line-height:1.55;color:#33404d;padding:10px 14px 14px 48px;border-top:none}
+  .munhal{background:var(--accent);color:#fff;border-radius:10px;padding:1px 7px;font-size:.78rem;font-weight:600}
+
+  details.rubric{margin-top:14px}
+  details.rubric summary{cursor:pointer;font-weight:600;font-size:.88rem;color:var(--accent)}
+  details.rubric div{font-size:.84rem;line-height:1.65;color:#33404d;margin-top:8px}
+  code{background:#eef2f6;padding:1px 5px;border-radius:4px;font-size:.85em}
+
+  td.cscore{cursor:pointer}
+  td.cscore .cbtn{display:inline-block;padding:3px 9px;border-radius:5px;background:#eef3f8;border:1px solid #cfdce8;font-weight:700;color:var(--accent)}
+  td.cscore:hover .cbtn{background:var(--accent);color:#fff;border-color:var(--accent)}
+  td.cscore .cbtn.open{background:var(--accent);color:#fff;border-color:var(--accent)}
+  tr.pcrow td{background:#f7fafc;border-top:none;padding:4px 16px 18px 48px}
+  .pcbox{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:900px){.pcbox{grid-template-columns:1fr}}
+  .pccol h4{margin:0 0 8px;font-size:.82rem;text-transform:uppercase;letter-spacing:.05em}
+  .pccol.plus h4{color:var(--good)}
+  .pccol.minus h4{color:var(--bad)}
+  .pccol ul{margin:0;padding-left:0;list-style:none}
+  .pccol li{font-size:.84rem;line-height:1.55;padding:5px 0 5px 22px;position:relative;color:#2b3742;border-bottom:1px dashed #e4ebf1}
+  .pccol li:last-child{border-bottom:none}
+  .pccol.plus li::before{content:'+';position:absolute;left:4px;top:5px;color:var(--good);font-weight:700}
+  .pccol.minus li::before{content:'–';position:absolute;left:4px;top:5px;color:var(--bad);font-weight:700}
+  .pctip{grid-column:1/-1;margin-top:6px;padding:9px 12px;background:#fff8e6;border-left:3px solid #d9a520;border-radius:5px;font-size:.83rem;line-height:1.5;color:#5a4a12}
+  .pchead{grid-column:1/-1;font-size:.82rem;color:var(--muted);margin-bottom:2px}
+
+  td.why{cursor:pointer}
+  td.why span.v{display:inline-block;min-width:26px;padding:2px 7px;border-radius:5px;border:1px solid transparent;font-weight:600}
+  td.why:hover span.v{background:#eef3f8;border-color:#cfdce8;color:var(--accent)}
+  td.why span.v.open{background:var(--accent);color:#fff;border-color:var(--accent)}
+  tr.whyrow td{background:#f7fafc;border-top:none;padding:4px 16px 16px 48px}
+  .whybox{background:#fff;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:6px;padding:12px 15px;max-width:900px}
+  .whybox h4{margin:0 0 6px;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--accent)}
+  .whybox p{margin:0;font-size:.85rem;line-height:1.6;color:#2b3742}
+  .whybox .scale{margin-top:9px;padding-top:9px;border-top:1px dashed #e4ebf1;font-size:.78rem;color:var(--muted);line-height:1.5}
+
+  .mobile-only{display:none}
+  @media (max-width: 820px){
+    header{padding:16px 16px}
+    header h1{font-size:1.08rem}
+    header p{font-size:.82rem}
+    .wrap{padding:12px 12px 50px}
+    .panel{padding:12px}
+    .weights{grid-template-columns:1fr;gap:12px}
+    .controls, .filters{position:static}
+    .filters input[type=text], .filters select{width:100%;min-width:0;font-size:16px}
+    .mobile-only{display:block}
+    button.reset{flex:1;min-width:130px}
+
+    .tblwrap{border:none;background:transparent;overflow:visible}
+    table{min-width:0;font-size:.9rem;border-collapse:separate;border-spacing:0}
+    thead{display:none}
+    tbody, tbody tr, tbody td{display:block;width:100%}
+    tbody tr{background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:12px;padding:10px 12px;position:relative}
+    tbody tr:nth-child(even){background:#fff}
+    tbody tr:hover{background:#fff}
+    tbody td{border-top:none;padding:5px 0;display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px dashed #eef2f6}
+    tbody td:last-child{border-bottom:none}
+    tbody td::before{content:attr(data-l);font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);flex:0 0 auto}
+    td.num{text-align:right}
+
+    /* rank + il + hastane as a header block */
+    td.rank{position:absolute;top:10px;right:12px;padding:0;border:none;display:block;font-size:.75rem;color:#a9b4bf}
+    td.rank::before{content:'#'}
+    td.il{border-bottom:none;padding-bottom:0}
+    td.il::before{display:none}
+    td.il{display:block;font-size:.72rem;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+    td.hosp{display:block;font-weight:600;font-size:1rem;line-height:1.35;padding-top:2px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+    td.hosp::before{display:none}
+
+    td.scorecell{border-bottom:none;padding-top:10px}
+    td.scorecell .bar{display:none}
+    .score{font-size:1.05rem}
+    td.why span.v, td.cscore .cbtn{background:#eef3f8;border-color:#cfdce8;color:var(--accent)}
+    td.notecell{border-bottom:none;justify-content:flex-end}
+    td.notecell::before{display:none}
+
+    tr.whyrow, tr.pcrow, tr.noterow{margin-top:-10px;border-top-left-radius:0;border-top-right-radius:0}
+    tr.whyrow td, tr.pcrow td, tr.noterow td{padding:0;display:block;border:none}
+    tr.whyrow td::before, tr.pcrow td::before, tr.noterow td::before{display:none}
+    .whybox{max-width:100%}
+    .pcbox{grid-template-columns:1fr;gap:12px}
+    .pcrow td{padding:2px 0 6px}
+    .noterow td{padding:2px 0 6px;background:transparent}
+  }
+  @media (max-width: 420px){
+    tbody td{font-size:.86rem}
+    td.hosp{font-size:.95rem}
+  }
+
+  td.gscore{cursor:pointer}
+  td.gscore .gbtn{display:inline-block;padding:3px 9px;border-radius:5px;background:#f2eefa;border:1px solid #dcd0ee;font-weight:700;color:#6b3fa0}
+  td.gscore:hover .gbtn{background:#6b3fa0;color:#fff;border-color:#6b3fa0}
+  td.gscore .gbtn.open{background:#6b3fa0;color:#fff;border-color:#6b3fa0}
+  .diff{font-weight:700;font-size:.82rem;padding:2px 6px;border-radius:4px}
+  .diff.dz{color:#9aa7b3}
+  .diff.dp{color:var(--good);background:#e3f4ea}
+  .diff.dn{color:var(--bad);background:#fbe6e6}
+  .srcbadge{display:inline-block;padding:1px 7px;border-radius:4px;font-size:.68rem;font-weight:700;letter-spacing:.06em;margin-right:7px;vertical-align:1px}
+  .srcbadge.c{background:var(--accent);color:#fff}
+  .srcbadge.g{background:#6b3fa0;color:#fff}
+
+  .opendet{cursor:pointer;color:var(--accent);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}
+  .opendet:hover{text-decoration-style:solid}
+  .detail{background:#fff;border:1px solid var(--line);border-radius:10px;padding:0;overflow:hidden}
+  .dhead{background:var(--accent);color:#fff;padding:16px 20px}
+  .dhead .il{font-size:.74rem;letter-spacing:.08em;opacity:.85;text-transform:uppercase}
+  .dhead h2{margin:3px 0 0;font-size:1.25rem;line-height:1.3}
+  .dhead .meta{margin-top:8px;font-size:.82rem;opacity:.9;display:flex;flex-wrap:wrap;gap:14px}
+  .backbar{padding:10px 20px;border-bottom:1px solid var(--line);background:#f8fafc;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .backbtn{padding:8px 16px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:.86rem;font-weight:600;color:var(--accent)}
+  .backbtn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .navbtn{padding:8px 12px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:.82rem;color:var(--muted)}
+  .navbtn:hover{background:var(--bg);color:var(--ink)}
+  .navbtn:disabled{opacity:.35;cursor:default}
+  .dbody{padding:18px 20px 26px}
+  .dsec{margin-bottom:22px}
+  .dsec > h3{margin:0 0 10px;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:6px}
+  table.dtab{width:100%;min-width:0;border-collapse:collapse;font-size:.86rem;border:1px solid var(--line);border-radius:0}
+  table.dtab th{background:#eef3f8;color:var(--ink);padding:8px 10px;text-align:left;font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;cursor:default;position:static}
+  table.dtab th:hover{background:#eef3f8}
+  table.dtab td{padding:9px 10px;border-top:1px solid var(--line);vertical-align:top;line-height:1.5}
+  table.dtab td.k{width:150px;font-weight:600;color:var(--muted);font-size:.8rem}
+  table.dtab td.v{text-align:center;width:74px;font-weight:700;font-variant-numeric:tabular-nums}
+  table.dtab tr:nth-child(even){background:#fbfcfd}
+  .dsplit{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .dcard{border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .dcard > .ch{padding:9px 12px;font-size:.76rem;font-weight:700;letter-spacing:.06em;color:#fff}
+  .dcard.c > .ch{background:var(--accent)}
+  .dcard.g > .ch{background:#6b3fa0}
+  .dcard .cb{padding:12px}
+  .dcard .role{font-size:.78rem;color:var(--muted);margin:0 0 10px;line-height:1.45}
+  .dcard h5{margin:0 0 6px;font-size:.76rem;text-transform:uppercase;letter-spacing:.05em}
+  .dcard .plus h5{color:var(--good)}
+  .dcard .minus h5{color:var(--bad)}
+  .dcard ul{margin:0 0 12px;padding:0;list-style:none}
+  .dcard li{font-size:.83rem;line-height:1.5;padding:4px 0 4px 20px;position:relative;border-bottom:1px dashed #eef2f6}
+  .dcard li:last-child{border-bottom:none}
+  .dcard .plus li::before{content:'+';position:absolute;left:3px;top:4px;color:var(--good);font-weight:700}
+  .dcard .minus li::before{content:'\2013';position:absolute;left:3px;top:4px;color:var(--bad);font-weight:700}
+  .dtip{background:#fff8e6;border-left:3px solid #d9a520;border-radius:5px;padding:9px 11px;font-size:.81rem;line-height:1.5;color:#5a4a12;margin-top:4px}
+  .bigscore{font-size:1.5rem;font-weight:700;padding:6px 14px;border-radius:8px;display:inline-block}
+  .partygrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+  .pparty{border:1px solid var(--line);border-radius:7px;padding:8px 10px;text-align:center}
+  .pparty b{display:block;font-size:1rem;font-variant-numeric:tabular-nums}
+  .pparty span{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .pparty.hi{background:#e3f4ea;border-color:#b9dfc9}
+  @media (max-width:820px){
+    .dsplit{grid-template-columns:1fr}
+    .dbody{padding:14px 14px 22px}
+    .dhead{padding:14px}
+    .dhead h2{font-size:1.05rem}
+    table.dtab td.k{width:auto}
+    table.dtab{display:table}
+    table.dtab thead{display:table-header-group}
+    table.dtab tbody, table.dtab tr, table.dtab td{display:table-cell}
+    table.dtab tr{display:table-row;background:#fff;border:none;border-radius:0;margin:0;padding:0}
+    table.dtab td::before{display:none}
+    table.dtab td{border-top:1px solid var(--line);justify-content:flex-start}
+  }
+
+  .kbadge{display:inline-block;padding:1px 6px;border-radius:4px;background:#e3f4ea;color:var(--good);font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  .ebadge{display:inline-block;padding:1px 6px;border-radius:4px;background:#f0f3f6;color:var(--muted);font-size:.68rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+  .alarm{color:var(--bad);font-weight:700}
+
+  .xbtn{position:absolute;top:8px;right:10px;width:26px;height:26px;border:1px solid var(--line);background:#fff;
+        border-radius:6px;cursor:pointer;font-size:15px;line-height:1;color:var(--muted);padding:0}
+  .xbtn:hover{background:var(--bad);color:#fff;border-color:var(--bad)}
+  .whybox, .pcbox{position:relative}
+  .pcbox{padding-right:6px}
+  footer{text-align:center;color:var(--muted);font-size:.78rem;padding:20px;line-height:1.6}
+</style>
+</head>
+<body>
+<header>
+  <h1>130. Dönem DHY — Genel Cerrahi Münhal Değerlendirmesi</h1>
+  <p>30 yerleşim; Ankara'ya yakınlık, yaşam kalitesi, hastane altyapısı, sosyal olanaklar ve siyasi tercih ekseninde puanlandı. Ağırlıkları kendinize göre ayarlayın; tablo anında yeniden sıralanır. <b>Hastane adına tıklayın</b> — o kadronun tam künyesi, iki kaynağın karşılaştırması ve seçim kırılımı ayrı sayfada açılır. <b>Puanlara tıklayın</b> — hastane puanı artı/eksi listesini, diğer puanlar ise o notun neden verildiğini ve rubriği açar.</p>
+</header>
+
+<div class="wrap">
+
+  <div class="panel">
+    <h2>Ağırlıklar</h2>
+    <div class="weights">
+      <div class="w">
+        <label>Ankara'ya Yakınlık <span id="lw-a">1.0×</span></label>
+        <input type="range" id="w-a" min="0" max="3" step="0.1" value="1">
+        <small>&lt;300 km = 9-10 · 300-500 = 7-8 · 500-800 = 5-6 · 800-1100 = 3-4 · &gt;1100 = 1-2</small>
+      </div>
+      <div class="w">
+        <label>Ankara'dan Ulaşım <span id="lw-u">1.0×</span></label>
+        <input type="range" id="w-u" min="0" max="3" step="0.1" value="1">
+        <small>Uçak, YHT, otobüs, karayolu — hangisi en pratikse. Kapıdan kapıya süre esas alınır, mesafe değil.</small>
+      </div>
+      <div class="w">
+        <label>Yaşam Kalitesi <span id="lw-b">1.0×</span></label>
+        <input type="range" id="w-b" min="0" max="3" step="0.1" value="1">
+        <small>SEGE/TÜİK yaşam endeksi, iklim, rakım, güvenlik, konut.</small>
+      </div>
+      <div class="w">
+        <label>Hastane <span id="lw-c">1.0×</span></label>
+        <input type="range" id="w-c" min="0" max="3" step="0.1" value="1">
+        <small>Rol grubu, yatak, cerrah ekibi (tek nöbet riski), YBÜ/anestezi/görüntüleme.</small>
+        <select id="srcC" style="margin-top:6px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;font-size:.82rem">
+          <option value="avg">Kaynak: İkisinin ortalaması</option>
+          <option value="cc">Kaynak: Sadece Claude puanı</option>
+          <option value="gc">Kaynak: Sadece Gemini puanı</option>
+        </select>
+      </div>
+      <div class="w">
+        <label>Sosyal Olanaklar <span id="lw-e">1.0×</span></label>
+        <input type="range" id="w-e" min="0" max="3" step="0.1" value="1">
+        <small>Üniversite, kültür, doğa, eş iş imkânı, sosyal serbestlik.</small>
+      </div>
+      <div class="w">
+        <label>Siyasi Tercih (CHP+İYİ) <span id="lw-d">1.0×</span></label>
+        <input type="range" id="w-d" min="0" max="3" step="0.1" value="1">
+        <small><code>(CHP% + İYİ%) ÷ 10</code> — CHP+İYİ toplamı yüksek olan yüksek puan alır. Kişisel tercihinizi yansıtır, kalite ölçüsü değildir.</small>
+      </div>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="reset" id="reset">Ağırlıkları sıfırla</button>
+      <button class="reset" id="onlyPol">Sadece siyasi tercihe göre sırala</button>
+      <button class="reset" id="onlyWork">Sadece mesleki (hastane+Ankara)</button>
+      <button class="reset" id="closeAll">Açık panelleri kapat</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Filtre</h2>
+    <div class="filters">
+      <input type="text" id="q" placeholder="Ara: il, hastane, not içeriği...">
+      <select id="fKm">
+        <option value="">Ankara mesafesi: hepsi</option>
+        <option value="400">≤ 400 km</option>
+        <option value="700">≤ 700 km</option>
+        <option value="1000">≤ 1000 km</option>
+      </select>
+      <select id="fMunhal">
+        <option value="">Münhal: hepsi</option>
+        <option value="2">2 ve üzeri (ekip desteği)</option>
+      </select>
+      <label class="chk"><input type="checkbox" id="fAkp"> CHP+İYİ verisi olanlar</label>
+      <label class="chk"><input type="checkbox" id="fRisk"> Kırmızı alanları gizle (tek cerrah / anestezi yok)</label>
+      <select id="mSort" class="mobile-only">
+        <option value="total">Sırala: Toplam puan</option>
+        <option value="chpiyi">Sırala: CHP+İYİ %</option>
+        <option value="cc">Sırala: Hastane (Claude)</option>
+        <option value="gc">Sırala: Hastane (Gemini)</option>
+        <option value="dc">Sırala: İki kaynak farkı</option>
+        <option value="km">Sırala: Ankara mesafesi</option>
+        <option value="a">Sırala: Mesafe puanı</option>
+        <option value="u">Sırala: Ulaşım kolaylığı</option>
+        <option value="b">Sırala: Yaşam puanı</option>
+        <option value="e">Sırala: Sosyal puan</option>
+        <option value="il">Sırala: İl adı</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div id="detail" class="detail" style="display:none"></div>
+
+  <div id="listview">
+  <div class="tblwrap">
+  <table>
+    <thead><tr>
+      <th class="rank">#</th>
+      <th data-k="il">İl<span class="ar"></span></th>
+      <th data-k="hastane">Hastane<span class="ar"></span></th>
+      <th class="num" data-k="munhal">Münhal<span class="ar"></span></th>
+      <th class="num" data-k="km">Ankara km<span class="ar"></span></th>
+      <th class="num" data-k="a">Mesafe P.<span class="ar"></span></th>
+      <th class="num" data-k="u">Ulaşım<span class="ar"></span></th>
+      <th class="num" data-k="b">Yaşam<span class="ar"></span></th>
+      <th class="num" data-k="cc">Hastane<br><small style="font-weight:400;opacity:.8">Claude</small><span class="ar"></span></th>
+      <th class="num" data-k="gc">Hastane<br><small style="font-weight:400;opacity:.8">Gemini</small><span class="ar"></span></th>
+      <th class="num" data-k="dc">Fark<span class="ar"></span></th>
+      <th class="num" data-k="e">Sosyal<span class="ar"></span></th>
+      <th class="num" data-k="akp24">AKP %<span class="ar"></span></th>
+      <th class="num" data-k="chp">CHP %<span class="ar"></span></th>
+      <th class="num" data-k="iyi">İYİ %<span class="ar"></span></th>
+      <th class="num" data-k="chpiyi">CHP+İYİ %<span class="ar"></span></th>
+      <th class="num why" data-k="d">Siyasi P.<span class="ar"></span></th>
+      <th class="num" data-k="total">TOPLAM<span class="ar">▼</span></th>
+      <th></th>
+    </tr></thead>
+    <tbody id="tb"></tbody>
+  </table>
+  </div>
+  </div>
+
+  <details class="rubric">
+    <summary>Puanlama rubriği, kaynaklar ve kısıtlar</summary>
+    <div>
+      <p><b>İki kaynaklı hastane puanı.</b> Hastane sütunu artık iki bağımsız değerlendirme içeriyor: <b>Claude</b> (Sağlık Bakanlığı SYGM, hastane resmî sayfaları, Doktorsitesi/DoktorTakvimi kadro kayıtları, dhyder.com hekim paylaşımları) ve <b>Gemini</b> (ayrı bir araştırma turu, %40 cerrah sayısı ve nöbet yükü · %30 anestezi+YBÜ+görüntüleme · %20 vaka hacmi · %10 fiziki koşullar ağırlıklandırmasıyla). 13 hastanede iki kaynak aynı puanı verdi; 16 hastanede 1 puan, Kilis'te 2 puan fark var. Ağırlık panelindeki açılır menüden hangi kaynağın ortalamaya gireceğini seçebilirsiniz (varsayılan: ikisinin ortalaması). "Fark" sütunu Gemini eksi Claude farkını gösterir — bu sütuna göre sıralayıp ayrışan hastaneleri görebilirsiniz; <b>bunlar kura öncesi İl Sağlık Müdürlüğü'ne sormanız gereken hastanelerdir.</b></p><p><b>Mesafe ile ulaşım ayrı iki kriter.</b> "Mesafe P." karayolu kilometresine bakar; "Ulaşım" ise hangi araç en pratikse (uçak, YHT, otobüs, özel araç) kapıdan kapıya gerçekçi süreyi ölçer. İkisi çoğu yerde ayrışır: Iğdır 1150 km ile mesafede 2 alıyor ama havalimanı şehir içinde olduğu için ulaşımda 7; Kastamonu Cide ise 330 km ile mesafede 8 alıyor ama Küre Dağları'nın virajlı yolları yüzünden ulaşımda 5'e düşüyor. Uçakla erişimin mesafeyi telafi ettiği yerler: Iğdır (+5), Ağrı (+4), Gaziantep (+4), Mardin Midyat (+4).</p><p><b>Toplam puan</b> = ağırlıklı ortalama. Bir kriterin verisi yoksa (ör. AKP oyu bulunamayan 4 kayıt) o kriter ortalamadan çıkarılır, kalanlar üzerinden hesaplanır — böylece veri eksikliği kaydı haksız yere cezalandırmaz. Bu satırlarda siyasi puan "veri yok" görünür.</p>
+      <p><b>Siyasi puan</b> talebiniz üzerine <code>(CHP % + İYİ Parti %) ÷ 10</code> olarak tanımlandı: bu iki parti dışındaki tüm oylar (AKP, MHP, DEM, YRP, BBP, DP, SP, bağımsız) karşı tarafta sayılır ve yüksek CHP+İYİ toplamı yüksek puan alır. Örnek: Kırşehir %55,68 → 5,57 · Şırnak Cizre %1,84 → 0,18. Veriler yüklediğiniz 31 Mart 2024 belediye başkanlığı seçim tablosundan alındı. Bu objektif bir kalite göstergesi değil, sizin belirttiğiniz tercihin sayısallaştırılmış hâlidir; ağırlığı 0'a çekerek tamamen devre dışı bırakabilirsiniz.</p><p><b>Veri kaynağı ayrımı.</b> 22 yerleşimin CHP+İYİ toplamı doğrudan yüklediğiniz seçim tablosundan geliyor. Altısının kırılımı tabloda boştu ve toplam değeri sizin tarafınızdan sağlandı — bunlar tabloda yıldız (*) ile işaretli: Yozgat %4 · Konya Ereğli %46 · Denizli Acıpayam %50 · Trabzon Araklı %5 · Mardin Midyat %0 · Muş Malazgirt %2. Van Çaldıran ve Van Çatak hâlâ eksik; bu iki satırda siyasi kriter ortalamadan çıkarıldı, sıfır sayılmadı. (Kaynak tabloda Çaldıran CHP %1,47 ve Çatak CHP %1,33 görünüyor, İYİ satırları boş — İYİ Parti aday çıkarmadıysa toplamlar bu değerlere eşit olur.)</p>
+      <p><b>Kaynaklar:</b> TÜİK ADNKS ve İllerde Yaşam Endeksi, Sanayi ve Teknoloji Bakanlığı SEGE, Sağlık Bakanlığı SYGM, 31 Mart 2024 yerel seçim sonuçları (AA beslemeli Sözcü/Milliyet/NTV/Yeni Şafak/TRT çapraz doğrulama), hastane resmî sayfaları, Doktorsitesi/DoktorTakvimi kadro kayıtları, dhyder.com hekim deneyim paylaşımları.</p>
+      <p><b>Kısıtlar:</b> Google Maps puanları güvenilir toplanamadığı için hiç kullanılmadı (uydurulmadı). Mesafeler karayolu tahminidir, ±30-50 km sapabilir. Hastane cerrah sayıları kura tarihinde değişebilir — <b>tercih öncesi ilgili İl Sağlık Müdürlüğü'nden güncel kadro teyidi şarttır.</b> Şanlıurfa Şehir Hastanesi rapor tarihinde henüz açılış aşamasındaydı. 2023 genel seçim ilçe verisi yalnızca Tunceli, Uşak-Banaz ve Şanlıurfa il geneli için teyit edilebildi.</p>
+    </div>
+  </details>
+</div>
+
+<footer>30 münhal kadro · 36 kontenjan · Kaynak: 130. Dönem DHY Genel Kura münhal listesi + araştırma raporu</footer>
+
+<script>
+const DATA = [{"il": "AFYONKARAHİSAR", "hastane": "Şuhut Devlet Hastanesi", "munhal": 1, "km": 280, "a": 9, "b": 6, "c": 4, "e": 5, "d": 5.23, "akp24": 31.82, "akp23": null, "not": "Ankara'ya çok yakın ama küçük ilçe hastanesi; muhtemelen tek/iki cerrah, icap nöbeti yükü yüksek. Afyon merkeze yakınlık artı. 2024'te ilçeyi MHP kazandı.", "pros": ["Ankara'ya ~280 km, hafta sonu dönüşü kolay", "Afyon merkeze ~35 km — üniversite hastanesi ve şehir hayatı yakın", "Batı Anadolu, kış şartları yönetilebilir; yol kapanma riski düşük", "Küçük hasta yükü, tempo görece sakin"], "cons": ["Küçük ilçe hastanesi: genel cerrah sayısı büyük olasılıkla 1-2 → 7/24 icap nöbeti riski", "Ameliyat çeşitliliği sınırlı; ağır vaka Afyon'a sevk edilir", "Yoğun bakım ve anestezi desteğinin sürekliliği kadroya bağlı, garanti değil", "Cerrahi beceri körelme riski (düşük vaka hacmi)"], "tip": "Cerrah sayısı ve anestezi kadrosu teyit edilmeli.", "whyA": "280 km → <300 km bandı (9-10). Bant içinde 9: karayolu düz ve hızlı, ama havalimanı bağlantısı Afyon'da değil, tren bağlantısı dolaylı.", "whyB": "Afyon SEGE'de orta-üst kademede; Ege-İç Anadolu geçişi, kış yönetilebilir. İlçe olması ve Afyon merkeze bağımlılık 7'den 6'ya çekti.", "whyE": "Afyon merkeze ~35 km: üniversite, termal turizm, AVM erişilebilir. Ancak Şuhut'un kendi sosyal dokusu zayıf → 5.", "whyD": "Formül: (CHP 50.73 + İYİ 1.55) ÷ 10 = 5.23. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Afyon Şuhut", "parties": {"akp": 31.82, "chp": 50.73, "iyi": 1.55, "mhp": 10.87, "dem": null, "yrp": 2.11, "bbp": null, "dp": null, "sp": 0.83, "bagimsiz": null, "toplam": 52.28}, "chp": 50.73, "iyi": 1.55, "chpiyi": 52.28, "userSupplied": false, "gc": 4, "gRol": "C grubu ilçe DH · 75 yatak · 2013 yapımı", "gPros": ["Afyon il merkezine 29 km — ağır batın travmasında hızlı ve güvenli sevk", "2013 yapımı görece modern bina ve konforlu poliklinik ortamı", "Elektif ve poliklinik ağırlıklı, stressiz çalışma döngüsü"], "gCons": ["Tek hekim durumunda ayın tamamında icap nöbeti", "İleri YBÜ donanımı eksikliği — majör onkolojik cerrahi yapılamıyor", "Sınırlı ameliyathane altyapısı, cerrahi el pratiğinde körelme riski"], "gNot": "Cerrah/anestezi/YBÜ/BT-MR sayıları için veri bulunamadı.", "cc": 4, "dc": 0, "tech": {"rol": "C (İlçe)", "yatak": "75", "cerrah": "1", "anestezi": "1", "ybu": "1. Basamak", "btmr": "BT var", "kesin": ["yatak"], "ek": "2013 yapımı bina. Sevk: 29 km Afyonkarahisar merkez."}, "u": 8, "whyU": "280 km, otoyoldan ~3,5 saat; Ankara-Afyon otobüs seferleri sık. Şuhut, Afyon merkeze 35 km. Havalimanı yok ama karayolu yeterince hızlı."}, {"il": "ARDAHAN", "hastane": "Göle Devlet Hastanesi", "munhal": 1, "km": 1000, "a": 3, "b": 2, "c": 3, "e": 2, "d": 3.19, "akp24": 26.03, "akp23": null, "not": "Türkiye'nin en soğuk noktalarından; yüksek rakım, kışın kapanabilen yollar, çok küçük hastane (tek cerrah riski), minimal sosyal yaşam. İlçeyi CHP kazandı.", "pros": ["Çok düşük hasta yoğunluğu", "Lojman bulma olasılığı yüksek, yaşam maliyeti düşük"], "cons": ["Listenin en küçük hastanelerinden; tek cerrah neredeyse kesin", "Türkiye'nin en soğuk noktalarından — kışın sevk yolları kapanabilir, bu acil cerrahide ciddi risk", "Yoğun bakım/anestezi/görüntüleme desteği zayıf; komplike vakada tek kalırsınız", "Ankara'ya ~1000 km, en yakın havalimanı uzak"], "tip": "Anestezi uzmanı var mı — bu soru burada kritik; yoksa elektif ameliyat yapılamaz.", "whyA": "1000 km → 800-1100 bandı (3-4). Bant içinde 3: havalimanı yok, en yakını Kars ~70 km; kışın yol güvenilmez.", "whyB": "SEGE'de en alt kademelerden; Türkiye'nin en soğuk noktalarından, kışın yol kapanması rutin. Rakım ve izolasyon → 2.", "whyE": "Nüfus çok düşük, üniversite yok, kültürel altyapı yok. Eş için iş imkânı neredeyse yok → 2.", "whyD": "Formül: (CHP 30.87 + İYİ 0.98) ÷ 10 = 3.19. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Ardahan Göle", "parties": {"akp": 26.03, "chp": 30.87, "iyi": 0.98, "mhp": 1.15, "dem": 3.08, "yrp": 29.79, "bbp": null, "dp": null, "sp": 0.71, "bagimsiz": null, "toplam": 31.85}, "chp": 30.87, "iyi": 0.98, "chpiyi": 31.85, "userSupplied": false, "gc": 2, "gRol": "C/D grubu ilçe DH · 40 yatak · 2017 yapımı", "gPros": ["Endoskopi ve kolonoskopi ünitesi çalışır durumda, tanısal işlemler kolay", "2017 yapımı yeni bina — izole ilçelerde nadir bir fiziki konfor", "Düşük nüfus, mesai içi poliklinik baskısı asgari"], "gCons": ["Kadroda YALNIZCA 1 genel cerrah teyitli — kesintisiz 7/24 icap", "Kış şartlarında Ardahan merkeze (45 km) sevkte hayati gecikme riski", "Güçlü anestezi ekibi ve YBÜ yok — akut komplikasyonda sahada yalnızlık"], "gNot": "Tek cerrah kolonoskopi, endoskopi, herni ve apandisit yürütüyor. YBÜ: yok.", "cc": 3, "dc": -1, "tech": {"rol": "C/D (İlçe)", "yatak": "40", "cerrah": "1 — KESİN", "anestezi": "YOK (0)", "ybu": "YOK", "btmr": "Yok", "kesin": ["yatak", "cerrah", "anestezi", "ybu"], "ek": "KIRMIZI ALAN. Anestezi uzmanı yok, YBÜ yok, tek cerrah kesin. Tek hekim kolonoskopi, endoskopi, herni ve apandisit yürütüyor. Sevk: 45 km Ardahan merkez."}, "u": 5, "whyU": "Kars Havalimanı'na uçup 70 km yol (~1 saat) en pratik yol; kapıdan kapıya ~4 saat. Ancak sefer sayısı az ve kışın Göle yolu kapanabiliyor."}, {"il": "AĞRI", "hastane": "Ağrı Eğitim ve Araştırma Hastanesi", "munhal": 1, "km": 1050, "a": 3, "b": 2, "c": 8, "e": 4, "d": 0.36, "akp24": 33.7, "akp23": null, "not": "EAH olduğu için ekip + yoğun bakım güçlü; C puanı buradan geliyor. Ancak TÜİK yaşam endeksinde Ağrı son sıralarda, sert kış ve uzaklık ağır basıyor. Cerrahi deneyim için iyi, yaşam için zor.", "pros": ["Eğitim ve Araştırma Hastanesi: genel cerrahi ekibi mevcut, nöbet paylaşılır", "Yoğun bakım, anestezi, BT/MR ve laboratuvar altyapısı tam", "Bölgenin referans merkezi — yüksek ve çeşitli vaka hacmi, cerrahi gelişim için verimli", "Asistan/ekip desteği ile ameliyathane kullanımı düzenli"], "cons": ["Ankara'ya ~1050 km; ulaşım pahalı ve zahmetli", "TÜİK yaşam endeksinde Ağrı son sıralarda; sosyal yaşam çok kısıtlı", "Sert ve uzun kış, yüksek rakım", "Referans merkezi olmak = ağır iş yükü ve yoğun nöbet"], "tip": "Kadrodaki genel cerrah sayısı teyit edilirse nöbet yükü netleşir.", "whyA": "1050 km → 800-1100 bandı (3-4). Bant içinde 3: bant sınırına yakın, Ağrı havalimanı sınırlı seferli.", "whyB": "TÜİK İllerde Yaşam Endeksi'nde Ağrı son üç il arasında; sert ve uzun kış, düşük gelişmişlik → 2.", "whyE": "İl merkezi olması ve Ağrı İbrahim Çeçen Üniversitesi'nin varlığı ilçelerden bir tık yukarı taşıyor → 4. Ağrı Dağı/İshak Paşa turizmi artı, günlük sosyal yaşam zayıf.", "whyD": "Formül: (CHP 2.57 + İYİ 1.03) ÷ 10 = 0.36. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Ağrı Merkez", "parties": {"akp": 33.7, "chp": 2.57, "iyi": 1.03, "mhp": null, "dem": 51.07, "yrp": 4.71, "bbp": 0.59, "dp": null, "sp": null, "bagimsiz": 0.15, "toplam": 3.6}, "chp": 2.57, "iyi": 1.03, "chpiyi": 3.6, "userSupplied": false, "gc": 8, "gRol": "A1 grubu EAH · üniversite afiliyasyonlu", "gPros": ["Geniş uzman ve asistan kadrosu — nöbet rotasyonu adil ve dinlendirici", "Tam teşekküllü YBÜ ve radyoloji ile yüksek riskli batın cerrahisi güvenli", "Bölge referans hastanesi: yüksek vaka çeşitliliği, laparoskopik pratik zirvede"], "gCons": ["Sınır hattı ve kırsaldan gelen penetran/künt travmaların ağır konsültasyon yükü", "Asistan eğitimi ve akademik prosedürlere zaman ayırma zorunluluğu", "Erzurum'a 180 km — ekstrem vakaların sevk zincirinde sorumluluk stresi"], "gNot": "Organ nakli ve özellikli cerrahiler 180 km'deki Erzurum'a sevk ediliyor.", "cc": 8, "dc": 0, "tech": {"rol": "A1 (EAH)", "yatak": "370", "cerrah": "Çoklu (5+)", "anestezi": "5+", "ybu": "3. Basamak", "btmr": "7/24 var · 2. MR cihazı mevcut", "kesin": ["yatak", "hekim"], "ek": "Toplam 193 hekim kadrosu bildirildi."}, "u": 7, "whyU": "Karayoluyla 1050 km olmasına rağmen Ağrı Ahmed-i Hâni Havalimanı Ankara'ya bağlı ve şehre yakın. Uçakla kapıdan kapıya ~3,5 saat. Sefer sıklığı sınırlı, tarih esnekliği gerekir."}, {"il": "BAYBURT", "hastane": "Bayburt Devlet Hastanesi", "munhal": 1, "km": 830, "a": 4, "b": 4, "c": 6, "e": 4, "d": 1.04, "akp24": 39.08, "akp23": null, "not": "İl merkezi, güvenli ve sakin; soğuk, küçük il, sosyal yaşam kısıtlı. Havalimanı yok (Trabzon/Erzurum). Orta ölçek hastane. 2024'te AKP kazandı.", "pros": ["İl devlet hastanesi — ilçe hastanelerine göre daha kurumsal, ekip olasılığı yüksek", "Yoğun bakım ve anestezi kadrosu il merkezinde genellikle mevcut", "Şehir küçük ve güvenli; işe gidiş-geliş zahmetsiz", "Trabzon'a ~180 km — havalimanı ve büyük şehir erişimi"], "cons": ["Nüfus çok düşük → vaka hacmi sınırlı, ameliyat çeşitliliği az", "Havalimanı yok; Ankara'ya ~830 km", "Soğuk iklim, sosyal yaşam kısıtlı", "İleri vaka Trabzon/Erzurum'a sevk edilir"], "tip": "İl hastanesi olsa da cerrah sayısı 2'nin altındaysa nöbet yükü ilçe hastanesi gibidir.", "whyA": "830 km → 800-1100 bandı (3-4). Bant içinde 4: bant alt sınırında, karayolu düzgün, Trabzon havalimanı ~180 km ile ulaşılabilir.", "whyB": "İl merkezi ve güvenlik açısından çok iyi, ancak Türkiye'nin en küçük ili; soğuk iklim ve sınırlı hizmet çeşitliliği → 4.", "whyE": "Bayburt Üniversitesi var ama küçük; sinema/AVM ölçeği minimal. Trabzon'a ~180 km erişim kısmi telafi → 4.", "whyD": "Formül: (CHP 6.13 + İYİ 4.27) ÷ 10 = 1.04. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Bayburt Merkez", "parties": {"akp": 39.08, "chp": 6.13, "iyi": 4.27, "mhp": 37.88, "dem": 0.17, "yrp": 8.74, "bbp": 1.0, "dp": 0.61, "sp": 3.57, "bagimsiz": null, "toplam": 10.4}, "chp": 6.13, "iyi": 4.27, "chpiyi": 10.4, "userSupplied": false, "gc": 7, "gRol": "A2 grubu il DH · 7 kat, servis başına 22 yatak", "gPros": ["7 ameliyathane (6 genel + 1 lokal) ve 20 yataklı erişkin YBÜ — il ihtiyacının tamamı", "Endoskopi, diyaliz, merkezi laboratuvar ve görüntüleme birimleri aktif", "İl merkezi olduğu için birden fazla cerrah istihdamı ihtimali yüksek"], "gCons": ["Çetin kış ikliminin Erzurum sevklerinde (125 km) yarattığı lojistik ve medikolegal baskı", "Onkolojik konsey eksikliği — kanser cerrahisinde multidisipliner destek yok", "İl nüfusunun tamamı bu hastaneye yöneliyor, poliklinik randevularında yığılma"], "gNot": "TEKNİK: 7 ameliyathane · 20 erişkin YBÜ + 13 yenidoğan YBÜ yatağı.", "cc": 6, "dc": 1, "tech": {"rol": "A2 (İl Devlet)", "yatak": "100+ (servis başına 22)", "cerrah": "2-4", "anestezi": "2-4", "ybu": "2. Basamak · 20 erişkin + 13 yenidoğan", "btmr": "7/24 var", "kesin": ["ameliyathane", "ybu"], "ek": "7 ameliyathane (6 genel + 1 lokal). Endoskopi, diyaliz, merkezi laboratuvar aktif."}, "u": 5, "whyU": "Havalimanı yok. Erzurum (125 km) veya Trabzon (180 km) havalimanından karayolu bağlantısı gerekiyor, kapıdan kapıya ~5 saat. Doğrudan Ankara otobüsü ~11 saat."}, {"il": "BİNGÖL", "hastane": "Solhan Devlet Hastanesi", "munhal": 1, "km": 950, "a": 3, "b": 3, "c": 4, "e": 2, "d": 0.13, "akp24": 40.53, "akp23": null, "not": "Küçük ilçe hastanesi, muhtemel tek cerrah; kırsal, sınırlı sosyal yaşam, sert iklim.", "pros": ["Düşük tempo, lojman erişimi kolay", "Bingöl merkeze ~70 km"], "cons": ["Küçük ilçe hastanesi; tek cerrah riski yüksek", "Yoğun bakım ve anestezi desteği sınırlı, komplike vaka sevk gerektirir", "Ankara'ya ~950 km, ulaşım zor", "Sosyal yaşam çok kısıtlı, sert kış"], "tip": "Anestezi ve yoğun bakım varlığı mutlaka sorulmalı.", "whyA": "950 km → 800-1100 bandı (3-4). Bant içinde 3: ilçe konumu Bingöl merkeze +70 km ekliyor, havalimanı sınırlı.", "whyB": "SEGE alt kademe; kırsal ilçe, sert kış, altyapı sınırlı → 3.", "whyE": "İlçe ölçeğinde sosyal olanak neredeyse yok; Bingöl merkez de küçük → 2.", "whyD": "Formül: (CHP 1.01 + İYİ 0.27) ÷ 10 = 0.13. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Bingöl Solhan", "parties": {"akp": 40.53, "chp": 1.01, "iyi": 0.27, "mhp": null, "dem": 4.89, "yrp": 7.46, "bbp": 0.44, "dp": 0.51, "sp": 0.33, "bagimsiz": null, "toplam": 1.28}, "chp": 1.01, "iyi": 0.27, "chpiyi": 1.28, "userSupplied": false, "gc": 3, "gRol": "C grubu ilçe DH", "gPros": ["Bingöl merkeze 60 km, ana yoldan acil travma sevki rahat", "Dahiliye ve kadın doğum branşları mevcut — klinikler arası dayanışma", "Gündüz poliklinik yükü düşük, teorik çalışmaya zaman kalıyor"], "gCons": ["Muhtemel tek genel cerrah — 30 gün aralıksız icap", "Ciddi batın cerrahisi için YBÜ ve anestezi güvencesi kısıtlı veya yok", "C grubu statüsü gereği stapler ve modern koter tedariki kısıtlı"], "gNot": "Genel cerrahi, göz, dahiliye ve kadın hastalıkları branşları var.", "cc": 4, "dc": -1, "tech": {"rol": "C (İlçe)", "yatak": "75", "cerrah": "1 — KESİN", "anestezi": "0 veya 1", "ybu": "1. Basamak", "btmr": "Kısıtlı", "kesin": ["yatak", "cerrah"], "ek": "Güncel atamalarla tek genel cerrah kadrosu doğrulandı. Sevk: 60 km Bingöl merkez."}, "u": 5, "whyU": "Bingöl Havalimanı var ama sefer sıklığı düşük; Muş veya Elazığ alternatif. Uçak + 60 km yol ile ~4,5 saat, ancak uçuş bulmak tarih esnekliği gerektiriyor."}, {"il": "BİTLİS", "hastane": "Adilcevaz Devlet Hastanesi", "munhal": 1, "km": 1150, "a": 2, "b": 3, "c": 3, "e": 2, "d": 0.13, "akp24": 37.89, "akp23": null, "not": "Van Gölü kuzeyi, küçük ilçe, sert kış; küçük hastane, tek cerrah riski. Sosyal yaşam çok kısıtlı.", "pros": ["Van Gölü kıyısı, manzara ve sakinlik", "Hasta yoğunluğu düşük"], "cons": ["Listenin en küçük hastanelerinden; tek cerrah riski çok yüksek", "Ameliyathane ve yoğun bakım imkanları kısıtlı", "Ankara'ya ~1150 km; Tatvan/Van üzerinden zahmetli ulaşım", "Sert kış, izole sosyal yaşam"], "tip": "Aktif ameliyathane var mı — burada temel soru budur.", "whyA": "1150 km → >1100 bandı (1-2). Bant içinde 2: Van/Tatvan üzerinden erişim mümkün olduğu için en alt değil.", "whyB": "Van Gölü kıyısı manzara artısı, ancak SEGE alt kademe, sert kış, çok küçük ilçe → 3.", "whyE": "Küçük göl kıyısı ilçesi; kültürel/ticari altyapı yok denecek düzeyde → 2.", "whyD": "Formül: (CHP 0.65 + İYİ 0.69) ÷ 10 = 0.13. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Bitlis Adilcevaz", "parties": {"akp": 37.89, "chp": 0.65, "iyi": 0.69, "mhp": null, "dem": 6.93, "yrp": 9.98, "bbp": 21.76, "dp": null, "sp": 21.61, "bagimsiz": null, "toplam": 1.34}, "chp": 0.65, "iyi": 0.69, "chpiyi": 1.34, "userSupplied": false, "gc": 3, "gRol": "C/D grubu entegre ilçe DH", "gPros": ["Van Gölü kıyısında sakin ortam, ağır medikal stresten uzak iş yaşamı", "Bölgenin en büyük kompleksi Tatvan DH'ye sadece 25 km — çok kısa sevk", "Acil başvuruları çoğunlukla küçük cerrahi ve elektif patoloji"], "gCons": ["Tek cerrah durumunda ilçeden ayrılamama ve sürekli nöbete hazır bekleme", "Gelişmiş ameliyathane yok — mesleki tatmin poliklinik hekimliğiyle sınırlı", "Gece akut karın vakalarında BT yoksa teşhis koymada ciddi zorluk"], "gNot": "Tatvan'a 25 km olması bu hastanenin en büyük kurtarıcısı.", "cc": 3, "dc": 0, "tech": {"rol": "C/D (Entegre İlçe)", "yatak": "~50", "cerrah": "1", "anestezi": "0 veya 1", "ybu": "Yok veya 1. Basamak", "btmr": "Yok", "kesin": [], "ek": "Sevk avantajı: 25 km Tatvan DH (543 yataklı bölge hastanesi)."}, "u": 4, "whyU": "Van Ferit Melen (150 km) veya Muş (100 km) havalimanından sonra 1,5-2 saatlik yol daha var. Kapıdan kapıya ~5 saat; kışın göl kıyısı yolu zorlaşıyor."}, {"il": "BİTLİS", "hastane": "Tatvan Devlet Hastanesi", "munhal": 1, "km": 1077, "a": 3, "b": 4, "c": 6, "e": 4, "d": 0.28, "akp24": 33.02, "akp23": null, "not": "TÜİK 2024: 103.752 nüfus — Bitlis'in en kalabalık ilçesi, il merkezinden büyük. Görece canlı, orta düzey ekip olasılığı. Rakım 1690 m, sert kış. İlçeyi DEM Parti kazandı.", "pros": ["Tatvan 103.752 nüfusla Bitlis'in en kalabalık ilçesi — il merkezinden büyük, canlı bir yerleşim", "Nüfusa bağlı olarak ekip ve düzenli ameliyathane olasılığı ilçe hastanelerine göre yüksek", "Van Gölü kıyısı; Van'a ~150 km, Ferit Melen Havalimanı erişilebilir", "Bölgenin ara referans noktası — vaka çeşitliliği fena değil"], "cons": ["Rakım 1690 m, sert ve uzun kış", "Ankara'ya ~1077 km", "Yoğun bakım kapasitesi sınırlı olabilir; ağır vaka Van'a sevk", "Sosyal olanaklar il ölçeğinin altında"], "tip": "Genel cerrahi kadro sayısı teyit edilmeli — 2+ ise iyi bir Doğu seçeneği.", "whyA": "1077 km → 800-1100 bandı (3-4). Bant içinde 3: sınıra çok yakın; Muş Sultan Alparslan Havalimanı 77 km, Van Ferit Melen alternatif.", "whyB": "103.752 nüfuslu, il merkezinden büyük canlı bir ilçe olması 3'ten 4'e çıkardı. Rakım 1690 m ve sert kış yukarı çıkmasını engelledi.", "whyE": "Nüfus büyüklüğü sayesinde çarşı, kafe, temel hizmetler mevcut; Van Gölü ve Nemrut Krateri turizmi artı → 4.", "whyD": "Formül: (CHP 1.78 + İYİ 1.04) ÷ 10 = 0.28. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Bitlis Tatvan", "parties": {"akp": 33.02, "chp": 1.78, "iyi": 1.04, "mhp": null, "dem": 48.53, "yrp": 9.07, "bbp": null, "dp": null, "sp": 0.9, "bagimsiz": null, "toplam": 2.82}, "chp": 1.78, "iyi": 1.04, "chpiyi": 2.82, "userSupplied": false, "gc": 7, "gRol": "A2/B grubu bölge hastanesi · 543 yatak · 10 ameliyathane", "gPros": ["543 yatak ve 10 ameliyathane — Türkiye'deki birçok il hastanesinden güçlü altyapı", "Kafeterya, kuaför, ATM gibi entegre sosyal alanlar uzun mesaide motivasyonu artırıyor", "Kapasiteye bağlı geniş uzman kadrosu nöbetleri insani sınırlara çekiyor"], "gCons": ["Çevre ilçe ve köylerin ana varış noktası — poliklinik ve acil sirkülasyonu çok yoğun", "Büyük servis alanları, pre-op ve post-op konsültasyonlar ciddi mesai alıyor", "Geniş spektrumlu travma (iş ve trafik kazası) acil nöbetlerini zorlaştırıyor"], "gNot": "TEKNİK: 543 yatak · 10 ameliyathane · 4 YBÜ odası (2 genel + 2 yenidoğan) · 19 diyaliz ünitesi. Sevk: Van/Diyarbakır.", "cc": 6, "dc": 1, "tech": {"rol": "A2/B (bölge hastanesi formunda ilçe DH)", "yatak": "543", "cerrah": "3-5", "anestezi": "3-5", "ybu": "2. Basamak · 4 oda (2 genel + 2 yenidoğan)", "btmr": "7/24 var", "kesin": ["yatak", "ameliyathane", "ybu"], "ek": "10 ameliyathane, 19 diyaliz ünitesi. Kafeterya, kuaför, ATM mevcut."}, "u": 5, "whyU": "En yakın havalimanı 77 km'deki Muş, alternatif Van Ferit Melen (150 km). Uçak + 1 saat yol ile ~4 saat. Ankara'dan doğrudan otobüs de var ama çok uzun."}, {"il": "DENİZLİ", "hastane": "Acıpayam Devlet Hastanesi", "munhal": 1, "km": 540, "a": 6, "b": 6, "c": 5, "e": 5, "d": 5.0, "akp24": 36.05, "akp23": null, "not": "Batıda, ılıman iklim, Denizli ve Pamukkale'ye yakın. Orta ölçekli ilçe hastanesi. Ege'nin yaşanabilir sosyal ortamı artı. 2024'te ilçeyi CHP kazandı.", "pros": ["Orta ölçekli, yerleşik bir ilçe hastanesi — tek cerrah riski görece düşük", "Denizli merkeze ~55 km; ileri vaka sevki hızlı ve güvenli", "Ilıman Ege iklimi, yol kapanma riski yok", "Batıda olması nedeniyle uzman personel devamlılığı daha iyi"], "cons": ["Ankara'ya ~540 km", "Vaka hacmi il merkezine göre düşük; ileri cerrahi Denizli'de yapılır", "İlçe ölçeğinde sosyal yaşam sınırlı"], "tip": "Kaç cerrah çalışıyor sorusu burada kararı netleştirir.", "whyA": "540 km → 500-800 bandı (5-6). Bant içinde 6: bant alt sınırında, otoyol bağlantısı iyi, Denizli Çardak Havalimanı erişilebilir.", "whyB": "Denizli SEGE'de üst kademede, ılıman Ege iklimi, yol kapanma riski yok → 6. İlçe ölçeği daha yukarı çıkmasını engelledi.", "whyE": "Denizli merkeze ~55 km: üniversite, AVM, Pamukkale. Acıpayam'ın kendisi sakin bir ilçe → 5.", "whyD": "Formül: CHP+İYİ toplamı 50.00 ÷ 10 = 5.00. Bu yerleşimin CHP ve İYİ kırılımı yüklediğiniz seçim tablosunda boştu; toplam değeri sizin tarafınızdan sağlandı (kullanıcı girdisi). Diğer 22 satır doğrudan tablodan geliyor.", "secimAd": "Denizli Acıpayam", "parties": {"akp": 36.05, "chp": null, "iyi": 3.97, "mhp": null, "dem": null, "yrp": 6.78, "bbp": 2.16, "dp": null, "sp": null, "bagimsiz": null, "toplam": null}, "chp": null, "iyi": 3.97, "chpiyi": 50.0, "userSupplied": true, "gc": 4, "gRol": "C grubu ilçe DH", "gPros": ["Denizli gibi tıbbi altyapısı güçlü bir şehre 60 km — üst düzey güvenli sevk zinciri", "Ege'nin ılıman iklimi ve gelişmiş sosyo-kültürel ortamı", "Pamukkale Üniversitesi'ne yakınlık konsültasyon ve fikir alışverişini kolaylaştırıyor"], "gCons": ["Bir veya iki hekim kadrosu — ayın büyük bölümünde icap sorumluluğu hekimde", "Laparoskopik optik ve stapler gibi sarflarda C grubu kısıtlılıkları", "İlçe sanayi ve tarımından kaynaklı ağır iş kazası travmaları kısıtlı altyapıyı zorluyor"], "gNot": "Sevk: 60 km Denizli DH veya Pamukkale Üniversitesi Tıp Fakültesi.", "cc": 5, "dc": -1, "tech": {"rol": "C (İlçe)", "yatak": "100", "cerrah": "1-2", "anestezi": "1", "ybu": "1. Basamak · 10 yatak", "btmr": "BT var", "kesin": ["yatak", "ybu"], "ek": "Sevk: 60 km Denizli DH veya Pamukkale Üniversitesi."}, "u": 6, "whyU": "540 km karayolu ~6 saat. Denizli Çardak Havalimanı'nda Ankara seferi var ama havalimanı Denizli'ye 65 km, Acıpayam'a ~100 km — uçağın kazancı azalıyor."}, {"il": "ERZURUM", "hastane": "Horasan Devlet Hastanesi", "munhal": 1, "km": 950, "a": 3, "b": 3, "c": 4, "e": 2, "d": 3.3, "akp24": 31.27, "akp23": null, "not": "Yüksek ova, çok sert kış; küçük ilçe hastanesi, tek cerrah riski. Sosyal yaşam zayıf. 2024'te İYİ Parti kazandı.", "pros": ["Erzurum merkeze ~90 km — üniversite hastanesine sevk mümkün", "Düşük hasta yoğunluğu"], "cons": ["Küçük ilçe hastanesi; tek cerrah riski yüksek", "Yüksek ova, Türkiye'nin en sert kışlarından — kışın sevk lojistiği zorlaşır", "Ameliyathane/yoğun bakım kapasitesi sınırlı", "Ankara'ya ~950 km, sosyal yaşam zayıf"], "tip": "Kış aylarında sevk yolu güvenliği ayrıca sorulmalı.", "whyA": "950 km → 800-1100 bandı (3-4). Bant içinde 3: Erzurum merkeze +90 km ilçe sapması, havalimanı uzak.", "whyB": "Yüksek ova, Türkiye'nin en sert kışlarından; SEGE alt-orta kademe, ilçe altyapısı zayıf → 3.", "whyE": "İlçede sosyal olanak yok; Erzurum'a 90 km, günlük erişim pratik değil → 2.", "whyD": "Formül: (CHP 0.82 + İYİ 32.13) ÷ 10 = 3.30. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Erzurum Horasan", "parties": {"akp": 31.27, "chp": 0.82, "iyi": 32.13, "mhp": null, "dem": 2.43, "yrp": 31.89, "bbp": null, "dp": null, "sp": 0.82, "bagimsiz": null, "toplam": 32.95}, "chp": 0.82, "iyi": 32.13, "chpiyi": 32.95, "userSupplied": false, "gc": 4, "gRol": "C grubu ilçe DH · 75 yatak · 1964 kuruluş, 2001 ek bina", "gPros": ["Yıllardır oturmuş genel cerrahi servis işleyişi, 75 yatak elektif için yeterli", "Erzurum merkeze otoyol bağlantısı güçlü — yaz aylarında sevk kolay", "Minör cerrahi ağırlıklı vaka profili genel stres yükünü azaltıyor"], "gCons": ["Ek bölümler oldukça eski — cerrahi serviste ergonomik ve fiziki kısıtlılıklar", "Ağır kış şartlarında otoyolun kapanma riski, akut batında sevk krizi", "İleri anestezi ve 3. basamak YBÜ yok — majör operasyonlardan uzak durma zorunluluğu"], "gNot": "Sevk: 85 km Erzurum Şehir Hastanesi.", "cc": 4, "dc": 0, "tech": {"rol": "C (İlçe)", "yatak": "75", "cerrah": "1", "anestezi": "1", "ybu": "1. Basamak", "btmr": "BT var", "kesin": ["yatak"], "ek": "1964 kuruluş, 2001 ek bina. Sevk: 85 km Erzurum Şehir Hastanesi."}, "u": 6, "whyU": "Erzurum Havalimanı Ankara'ya iyi bağlı, uçuş ~1,5 saat; havalimanı-Horasan 90 km, ~1,2 saat. Kapıdan kapıya ~4 saat. Kışın kara yolu riski var."}, {"il": "ERZURUM", "hastane": "Oltu Devlet Hastanesi", "munhal": 1, "km": 950, "a": 3, "b": 4, "c": 5, "e": 3, "d": 0.83, "akp24": 33.44, "akp23": null, "not": "Kuzey Erzurum'un bölgesel merkezi; vadi konumu il merkezine göre daha ılıman. Erzurum'a ~120 km (havalimanı, üniversite, kayak). İlçeyi AKP kazandı, yüzde verisi bulunamadı.", "pros": ["Kuzey Erzurum'un bölgesel merkezi — çevre ilçelerden hasta alır, vaka hacmi Horasan'dan iyi", "Vadi konumu sayesinde kış Erzurum merkezden daha ılıman", "Erzurum'a ~120 km; havalimanı, üniversite, kayak merkezi erişilebilir", "Ekip olasılığı küçük ilçe hastanelerine göre daha yüksek"], "cons": ["Yine de bir ilçe hastanesi; yoğun bakım kapasitesi sınırlı", "Ankara'ya ~950 km", "Sosyal yaşam kısıtlı"], "tip": "Bölgesel merkez konumu nedeniyle kadro sorulmaya değer.", "whyA": "950 km → 800-1100 bandı (3-4). Bant içinde 3: Horasan ile aynı bant; Erzurum havalimanına ~120 km.", "whyB": "Vadi konumu kışı Erzurum merkezden ılıman kılıyor, bölgesel merkez olması altyapıyı güçlendiriyor → 4 (Horasan'dan bir puan yukarı).", "whyE": "Oltu bölgesel merkez, çarşısı canlı; Erzurum'a 120 km (kayak, üniversite) → 3.", "whyD": "Formül: (CHP 2.58 + İYİ 5.71) ÷ 10 = 0.83. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Erzurum Oltu", "parties": {"akp": 33.44, "chp": 2.58, "iyi": 5.71, "mhp": null, "dem": null, "yrp": 25.4, "bbp": 6.06, "dp": 14.54, "sp": 2.81, "bagimsiz": null, "toplam": 8.29}, "chp": 2.58, "iyi": 5.71, "chpiyi": 8.29, "userSupplied": false, "gc": 5, "gRol": "B/C grubu bölgesel ilçe DH (Şenkaya, Olur için hub)", "gPros": ["Kuzey ilçelerinin merkezi — fıtık ve safra kesesi gibi elektifte tatmin edici hacim", "Çoğunlukla birden fazla hekim atanıyor, nöbet meslektaşlar arası paylaşılıyor", "Bölgenin en donanımlı ilçe hastanelerinden, temel laparoskopik set ihtimali"], "gCons": ["Merkeze 120 km ve dağlık yollar, kışın travma yönetimini tehlikeli kılıyor", "Çevre ilçelerden sürekli hasta akışı, acil ve poliklinikte aşırı kalabalık", "Üst basamak YBÜ eksikliği riskli anastomoz gerektiren ameliyatlardan kaçınmaya zorluyor"], "gNot": "Sevk: 120 km Erzurum merkez.", "cc": 5, "dc": 0, "tech": {"rol": "B/C (Büyük İlçe)", "yatak": "~100", "cerrah": "1-2", "anestezi": "1-2", "ybu": "1. veya 2. Basamak", "btmr": "BT var", "kesin": [], "ek": "Şenkaya, Olur gibi kuzey ilçeler için hub. Sevk: 120 km Erzurum merkez."}, "u": 5, "whyU": "Erzurum Havalimanı iyi bağlı ama havalimanı-Oltu 120 km dağ yolu, ~2 saat. Kapıdan kapıya ~4,5 saat; kışın bu bölüm ciddi risk."}, {"il": "GAZİANTEP", "hastane": "25 Aralık Devlet Hastanesi", "munhal": 1, "km": 660, "a": 5, "b": 6, "c": 8, "e": 8, "d": 4.12, "akp24": 25.96, "akp23": null, "not": "Şehitkamil'de; 300 yatak, 87 poliklinik, 11 ameliyathane, 52 yoğun bakım yataklı ek bina. Metropol içi, tam ekip. Üniversite, AVM, mutfak kültürü güçlü. Deprem bölgesi ve ağır iş yükü eksi. İlçeyi AKP kazandı, yüzde bulunamadı.", "pros": ["300 yatak, 87 poliklinik, 11 ameliyathane, 52 yoğun bakım yataklı modern ek bina", "Metropol hastanesi: tam genel cerrahi ekibi, nöbet düzenli paylaşılır", "Anestezi, yoğun bakım, BT/MR, patoloji desteği eksiksiz", "Yüksek ve çeşitli vaka hacmi — cerrahi gelişim için listenin en iyilerinden", "Şehitkamil'de; şehir hayatı, üniversite, AVM, mutfak kültürü"], "cons": ["Yoğun iş yükü ve kalabalık acil — tempo ağır", "Ankara'ya ~660 km", "Deprem bölgesi; bina stoğu ve şehir dinamikleri hâlâ etkilenmiş durumda"], "tip": "Cerrahi hacim önceliğinizse listenin en güçlü 3 seçeneğinden biri.", "whyA": "660 km → 500-800 bandı (5-6). Bant içinde 5: karayolu uzun ama Gaziantep Havalimanı Ankara'ya sık sefer yapıyor, pratik erişim bandın gösterdiğinden iyi.", "whyB": "Metropol altyapısı ve SEGE üst kademesi güçlü; ancak deprem bölgesi olması, göç yükü ve kalabalık 6'da tuttu.", "whyE": "Listenin en yükseği (8): Gaziantep Üniversitesi, çok sayıda AVM/sinema, güçlü mutfak kültürü, eş için geniş iş imkânı, havalimanı.", "whyD": "Formül: (CHP 39.67 + İYİ 1.56) ÷ 10 = 4.12. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Gaziantep Şehitkamil", "parties": {"akp": 25.96, "chp": 39.67, "iyi": 1.56, "mhp": null, "dem": 6.0, "yrp": 15.36, "bbp": 2.12, "dp": 0.2, "sp": 1.33, "bagimsiz": 0.42, "toplam": 41.23}, "chp": 39.67, "iyi": 1.56, "chpiyi": 41.23, "userSupplied": false, "gc": 7, "gRol": "A2 grubu metropol il DH (Şehitkamil)", "gPros": ["Metropol hastanesi — geniş uzman kadrosuyla icap eziyeti yok, aktif vardiya sistemi", "7/24 tam donanımlı YBÜ ve radyoloji ile en riskli operasyonlara güvenle girilebiliyor", "Şehir merkezinde konum: yüksek mesleki konfor ve sosyal yaşam standardı"], "gCons": ["Devasa nüfus, yoğun mülteci nüfusu ve şehir içi şiddet vakalarının travmatik iş yükü", "Performans sistemi baskısıyla günlük randevulu hasta sayısı fiziksel limitleri zorluyor", "Ateşli silah yaralanması sıklığı acil cerrahi nöbetlerini mental olarak yıpratıcı kılıyor"], "gNot": "Sevk avantajı: aynı şehirde Şehir Hastanesi ve Gaziantep Üniv. Tıp Fakültesi.", "cc": 8, "dc": -1, "tech": {"rol": "A2 (Metropol İl Devlet)", "yatak": "300+", "cerrah": "4-6", "anestezi": "4-6", "ybu": "2. veya 3. Basamak · 54 yatak", "btmr": "7/24 var", "kesin": ["ameliyathane", "ybu"], "ek": "300 yataklı yeni yatırımla 11 ameliyathane ve 54 YBÜ yatağı eklendi."}, "u": 9, "whyU": "Gaziantep Havalimanı'na Ankara'dan günde çok sayıda sefer var, uçuş ~1,5 saat. Havalimanı-Şehitkamil ~20 dk. Kapıdan kapıya ~3 saat."}, {"il": "HATAY", "hastane": "Hassa Devlet Hastanesi", "munhal": 1, "km": 600, "a": 6, "b": 4, "c": 4, "e": 3, "d": 2.52, "akp24": 43.53, "akp23": null, "not": "6 Şubat 2023 depreminde eski hastane yıkıldı, yerine yeni bina hizmete alındı. Bölge toparlanma sürecinde, küçük ilçe — tek cerrah riski. Ilıman iklim ve Gaziantep'e yakınlık artı.", "pros": ["Deprem sonrası yeni bina hizmete alındı — fiziki koşullar yeni", "Ilıman iklim; Gaziantep'e ~90 km, ileri merkez erişimi mümkün", "Hasta yoğunluğu orta düzey"], "cons": ["Küçük ilçe hastanesi; tek cerrah riski yüksek", "Yoğun bakım ve anestezi devamlılığı kırılgan", "Bölge deprem sonrası toparlanma sürecinde — konut, okul, altyapı sorunları sürüyor", "Suriye sınırına yakın; güvenlik değişkeni"], "tip": "Konut/lojman durumu bölgede kritik — önceden teyit edin.", "whyA": "600 km → 500-800 bandı (5-6). Bant içinde 6: bant alt sınırında; Gaziantep Havalimanı ~90 km ile erişilebilir.", "whyB": "Ilıman iklim artı, ancak 6 Şubat 2023 depremi sonrası konut/altyapı hâlâ toparlanma sürecinde; Suriye sınırı → 4.", "whyE": "Küçük sınır ilçesi; sosyal altyapı deprem sonrası zayıf. Gaziantep'e ~90 km kısmi telafi → 3.", "whyD": "Formül: (CHP 3.67 + İYİ 21.50) ÷ 10 = 2.52. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Hatay Hassa", "parties": {"akp": 43.53, "chp": 3.67, "iyi": 21.5, "mhp": null, "dem": null, "yrp": 2.66, "bbp": 24.68, "dp": null, "sp": 0.77, "bagimsiz": 0.19, "toplam": 25.17}, "chp": 3.67, "iyi": 21.5, "chpiyi": 25.17, "userSupplied": false, "gc": 3, "gRol": "C grubu ilçe DH · 2023 depremi sonrası yeniden yapılanma", "gPros": ["Afet sonrası toparlanan bölgede hizmetin verdiği mesleki maneviyat ve halkın saygısı", "Deprem sonrası yeni sağlık yapılarının sıfır ve güncel cihazlarla donatılmış olma ihtimali", "Acil vakalar çoğunlukla travma stabilizasyonu ve küçük kesiler, majör batın değil"], "gCons": ["Büyük olasılıkla tek genel cerrah — 7/24 ilçeden ayrılamama", "Tam donanımlı ameliyathane eksikliği, cerrahi gelişim durma noktasında", "Altyapısal iyileşme sürecinde sosyal izolasyon ve barınma zorlukları"], "gNot": "Sevk: 80 km Hatay ana sağlık tesisleri. Fiziki şartlar için sabit veri yok.", "cc": 4, "dc": -1, "tech": {"rol": "C (İlçe)", "yatak": "100 (deprem sonrası yeni bina)", "cerrah": "1", "anestezi": "1", "ybu": "1. Basamak · 8 yatak", "btmr": "BT var", "kesin": ["yatak", "ybu"], "ek": "Deprem sonrası 100 yataklı yeni hastane hizmete girdi. Sevk: 80 km Hatay merkez."}, "u": 6, "whyU": "Gaziantep Havalimanı üzerinden gitmek daha güvenilir: uçak + 90 km yol, kapıdan kapıya ~3,5 saat. Hatay Havalimanı'nın deprem sonrası sefer durumunu ayrıca teyit edin."}, {"il": "IĞDIR", "hastane": "Dr. Nevruz Erez Devlet Hastanesi", "munhal": 1, "km": 1150, "a": 2, "b": 3, "c": 6, "e": 3, "d": 0.74, "akp24": 42.23, "akp23": null, "not": "İl devlet hastanesi (ekip var), havalimanı şehirde; ancak Türkiye'nin en uzak köşelerinden, düşük gelişmişlik, sınır ili. Ağrı Ovası düşük rakımı sayesinde kış Van/Ağrı'dan ılıman. İli DEM Parti kazandı.", "pros": ["İl devlet hastanesi — cerrahi ekip ve yoğun bakım olasılığı ilçelerden yüksek", "Havalimanı şehir içinde; uzaklığa rağmen uçakla ulaşım mümkün", "Ağrı Ovası'nın düşük rakımı sayesinde kış Van/Ağrı'ya göre ılıman", "İl merkezi olduğu için sevk zinciri daha düzenli"], "cons": ["Ankara'ya ~1150 km — Türkiye'nin en uzak köşelerinden", "Düşük sosyoekonomik gelişmişlik, sınırlı sosyal yaşam", "İleri vaka Erzurum/Van'a sevk edilir", "Sınır ili dinamikleri"], "tip": "Uzaklığa rağmen il hastanesi olması nöbet yükü açısından avantaj.", "whyA": "1150 km → >1100 bandı (1-2). Bant içinde 2: Iğdır Havalimanı şehir içinde olduğu için uçakla erişim mümkün, bu yüzden 1 değil.", "whyB": "SEGE alt kademe, sınır ili; ancak Ağrı Ovası'nın düşük rakımı sayesinde kış Van/Ağrı'dan ılıman → 3.", "whyE": "İl merkezi olması ve havalimanı temel hizmetleri sağlıyor; kültürel yaşam ve üniversite ölçeği çok küçük → 3.", "whyD": "Formül: (CHP 2.88 + İYİ 4.48) ÷ 10 = 0.74. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Iğdır Merkez", "parties": {"akp": 42.23, "chp": 2.88, "iyi": 4.48, "mhp": null, "dem": 46.7, "yrp": 1.24, "bbp": null, "dp": null, "sp": 0.31, "bagimsiz": 0.18, "toplam": 7.36}, "chp": 2.88, "iyi": 4.48, "chpiyi": 7.36, "userSupplied": false, "gc": 6, "gRol": "A2 grubu il DH · ilin en büyük kamu hastanesi", "gPros": ["Çoklu uzman kadrosu (2+ teyitli) — nöbet çizelgesi makul, icap yükü paylaşılıyor", "İl hastanesi olduğu için stapler ve laparoskopi seti temininde rahatlık", "Herni, safra, apandisit yoğunluğu ile cerrahi el becerisi yüksek seviyede korunuyor"], "gCons": ["Sınır kenti — üst düzey onkolojik ve akademik konsültasyon ağlarına erişim sınırlı", "İlin tek ana merkezi olması: tüm ağır trafik kazaları doğrudan cerraha yansıyor", "Kars veya Erzurum'a sevk esnasında medikal riskler"], "gNot": "08:20-16:00 kesintisiz poliklinik. Safra, herni, kasık ağrısı vakaları yoğun.", "cc": 6, "dc": 0, "tech": {"rol": "A2 (İl Devlet)", "yatak": "~200+", "cerrah": "2+", "anestezi": "2+", "ybu": "2. Basamak", "btmr": "Var", "kesin": [], "ek": "08:20-16:00 kesintisiz poliklinik. Çoklu uzman kadrosu teyitli."}, "u": 7, "whyU": "Listenin en uzağı sayılır (1150 km) ama Iğdır Havalimanı şehir içinde ve Ankara seferi var. Uçakla ~3 saat — mesafeye göre şaşırtıcı derecede kolay."}, {"il": "KASTAMONU", "hastane": "Cide Devlet Hastanesi", "munhal": 1, "km": 330, "a": 8, "b": 6, "c": 3, "e": 4, "d": 3.33, "akp24": 18.35, "akp23": null, "not": "Karadeniz sahili, doğa/plaj, huzurlu. Ancak il merkezine 134 km ve virajlı yolda 2,5-3 saat. Küçük sahil hastanesi — tek cerrah riski yüksek, izole yaşam. 2024'te AKP kazandı.", "pros": ["Karadeniz sahilinde, doğa ve deniz; huzurlu yaşam", "Düşük hasta yoğunluğu, sakin tempo"], "cons": ["Küçük sahil hastanesi; tek cerrah riski yüksek", "İl merkezine 134 km ve virajlı yolda 2,5-3 saat — acil sevkte ciddi dezavantaj", "Yoğun bakım ve ileri görüntüleme sınırlı", "Coğrafi izolasyon; kışın deniz/dağ havası yolları zorlaştırır"], "tip": "Kuş uçuşu Ankara'ya yakın görünse de gerçek erişim zordur — haritaya aldanmayın.", "whyA": "330 km → 300-500 bandı (7-8). Bant içinde 8 ama dikkat: kuş uçuşu yakınlık yanıltıcı, il merkezine 134 km virajlı yolda 2,5-3 saat sürüyor.", "whyB": "Karadeniz sahili, doğa ve güvenlik artı; ancak coğrafi izolasyon ve il merkezine uzaklık 6'da tuttu.", "whyE": "Sahil kasabası: yazın canlı, kışın sessiz. Üniversite/AVM yok, Kastamonu merkez 3 saat → 4.", "whyD": "Formül: (CHP 30.57 + İYİ 2.69) ÷ 10 = 3.33. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Kastamonu Cide", "parties": {"akp": 18.35, "chp": 30.57, "iyi": 2.69, "mhp": 46.74, "dem": null, "yrp": 0.45, "bbp": null, "dp": null, "sp": 0.32, "bagimsiz": null, "toplam": 33.26}, "chp": 30.57, "iyi": 2.69, "chpiyi": 33.26, "userSupplied": false, "gc": 2, "gRol": "D grubu entegre/küçük ilçe DH", "gPros": ["Karadeniz sahilinde olağanüstü doğa içinde sessiz ve huzurlu yaşam alanı", "Yüksek riskli komplike elektif cerrahi baskısı tamamen yok, salt poliklinik odaklı pratik", "Hastane içi idari ve akademik bürokrasi en alt düzeyde"], "gCons": ["EN YÜKSEK RİSK: tek hekim zorunluluğu, 30 gün aralıksız icap, ilçeyi terk edememe", "135 km sarp dağ yolu (Küre Dağları) — batın içi kanamada hasta yolda kaybedilebilir", "Anestezi ve kan bankası yok — hekim tıbbi imkânsızlıklar içinde yalnız"], "gNot": "Gemini bu hastaneyi 'Kırmızı Alan / maksimum malpraktis riski' olarak sınıflandırdı.", "cc": 3, "dc": -1, "tech": {"rol": "D (Entegre İlçe)", "yatak": "~30", "cerrah": "1", "anestezi": "YOK (0)", "ybu": "YOK", "btmr": "Yok", "kesin": ["anestezi", "ybu"], "ek": "KIRMIZI ALAN. Anestezi ve kan bankası yok. Sevk: 135 km Kastamonu merkez, Küre Dağları üzerinden sarp yol."}, "u": 5, "whyU": "Haritada 330 km görünse de Küre Dağları'nın virajlı yolları nedeniyle ~5 saat sürüyor. Kastamonu Havalimanı'nın sefer sıklığı çok düşük, doğrudan Cide otobüsü sınırlı."}, {"il": "KIRŞEHİR", "hastane": "Kırşehir Eğitim ve Araştırma Hastanesi", "munhal": 1, "km": 185, "a": 10, "b": 6, "c": 8, "e": 5, "d": 5.57, "akp24": 37.42, "akp23": null, "not": "Ankara'ya ~185 km ile listenin en yakını. EAH: genel cerrahi ekibi, yoğun bakım, anestezi, görüntüleme tam. Tek başına nöbet riski düşük. Ahi Evran Üniversitesi ve termal kaynaklar artı. EN DENGELİ TERCİH.", "pros": ["Eğitim ve Araştırma Hastanesi: genel cerrahi ekibi mevcut, tek başına nöbet riski düşük", "Yoğun bakım, anestezi, BT/MR, patoloji desteği tam", "Ankara'ya ~185 km — listenin en yakını; haftalık gidiş-geliş rahat", "İl merkezi referans hastanesi: düzenli ameliyat programı ve iyi vaka çeşitliliği", "Ahi Evran Üniversitesi ve termal kaynaklar; yaşam maliyeti makul"], "cons": ["Büyük şehir sosyal hayatı yok; kültürel olanaklar sınırlı", "İç Anadolu, kışlar soğuk ve rüzgarlı", "EAH iş yükü ilçe hastanesinden belirgin ağır"], "tip": "Mesleki güvenlik + coğrafi yakınlık dengesinde listenin en iyisi.", "whyA": "185 km → <300 km bandı (9-10). Bant içinde 10: listenin en yakını, Ankara'ya doğrudan karayolu ~2 saat, günübirlik gidiş-geliş mümkün.", "whyB": "İç Anadolu il merkezi, güvenli, yaşam maliyeti makul; ancak küçük il ve soğuk-rüzgarlı kış → 6.", "whyE": "Ahi Evran Üniversitesi ve termal kaynaklar var; ancak kültürel yaşam sınırlı. Ankara yakınlığı sosyal ihtiyacı telafi ediyor → 5.", "whyD": "Formül: (CHP 52.86 + İYİ 2.82) ÷ 10 = 5.57. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Kırşehir Merkez", "parties": {"akp": 37.42, "chp": 52.86, "iyi": 2.82, "mhp": null, "dem": 1.23, "yrp": 2.5, "bbp": null, "dp": 0.21, "sp": 0.76, "bagimsiz": 0.21, "toplam": 55.68}, "chp": 52.86, "iyi": 2.82, "chpiyi": 55.68, "userSupplied": false, "gc": 8, "gRol": "A1 grubu EAH · üniversite afiliyasyonlu", "gPros": ["Akademik yapı: tümör vakaları multidisipliner konseyde tartışılıyor, bireysel risk dağılıyor", "Asistan ve diğer uzmanlar sayesinde acil konsültasyon ve servis yükü belirgin hafif", "Ankara'ya yakınlık kongre ve akademik gelişim açısından geniş ufuk sunuyor"], "gCons": ["EAH unvanının getirdiği ağır cerrahi vaka kabul beklentisi ve performans baskısı", "Asistan eğitimi ve tezlerden sorumluluk, uzman üzerine ekstra akademik stres", "Kırşehir ve çevre ilçelerden akan ağır travmalar acil servisi yorucu kılıyor"], "gNot": "Bölgenin ana referans noktası; sevk yaparsa Ankara'ya yönlendiriyor.", "cc": 8, "dc": 0, "tech": {"rol": "A1 (EAH · üniversite afiliyeli)", "yatak": "450 tescilli", "cerrah": "Çoklu (akademik kadro)", "anestezi": "5+", "ybu": "3. Basamak", "btmr": "7/24 var", "kesin": ["yatak"], "ek": "2025'te açılması planlanan yeni bina: 400 yatak, 21 ameliyathane, 123 YBÜ yatağı."}, "u": 9, "whyU": "185 km, özel araçla ~2 saat, gün boyu sık otobüs. Havalimanına gerek yok; günübirlik gidiş-dönüş rahat yapılıyor."}, {"il": "KONYA", "hastane": "Ereğli Devlet Hastanesi", "munhal": 2, "km": 310, "a": 8, "b": 7, "c": 7, "e": 5, "d": 4.6, "akp24": null, "akp23": null, "not": "Kasım 2017'de yeni modern binaya taşındı; 251 yataklı, 4 bloklu büyük ilçe hastanesi — cerrah ekibi mevcut. 2 münhal olması ekip desteği açısından olumlu. Sosyal yaşam görece muhafazakâr.", "pros": ["251 yataklı, 2017'de açılan yeni ve modern 4 bloklu bina", "Büyük bir ilçe hastanesi — genel cerrahi ekibi mevcut, nöbet paylaşılır", "2 münhal kadro: meslektaşla birlikte gitme veya ekip desteği şansı", "Ankara'ya ~310 km; Konya merkeze ~150 km", "Ereğli gelişmiş ve kalabalık bir ilçe; altyapı iyi"], "cons": ["İleri vaka Konya merkeze sevk edilir", "Sosyal yaşam görece muhafazakâr, kültürel olanaklar sınırlı", "İç Anadolu iklimi, kuru ve soğuk kış"], "tip": "2 münhal olması nöbet yükü açısından somut bir avantaj.", "whyA": "310 km → 300-500 bandı (7-8). Bant içinde 8: bant üst sınırında, otoyol bağlantısı iyi, Ankara'ya ~3,5 saat.", "whyB": "Ereğli gelişmiş ve kalabalık bir ilçe, altyapı iyi, SEGE'de ilçe olarak üst sıralarda → 7 (listenin en yükseklerinden).", "whyE": "Ereğli büyük bir ilçe: çarşı, temel hizmetler tam. Ancak sosyal yaşam muhafazakâr, kültürel çeşitlilik sınırlı → 5.", "whyD": "Formül: CHP+İYİ toplamı 46.00 ÷ 10 = 4.60. Bu yerleşimin CHP ve İYİ kırılımı yüklediğiniz seçim tablosunda boştu; toplam değeri sizin tarafınızdan sağlandı (kullanıcı girdisi). Diğer 22 satır doğrudan tablodan geliyor.", "secimAd": "Konya Ereğli", "parties": {"akp": null, "chp": 39.89, "iyi": null, "mhp": 34.51, "dem": null, "yrp": 13.45, "bbp": null, "dp": null, "sp": null, "bagimsiz": null, "toplam": null}, "chp": 39.89, "iyi": null, "chpiyi": 46.0, "userSupplied": true, "gc": 6, "gRol": "B grubu büyük ilçe DH · il hastanesi hacminde", "gPros": ["Birden fazla hekim kadrosu — icap nöbetleri hakkaniyetli paylaşılıyor", "Büyük ilçe statüsü: laparoskopik optik ve koter dahil gelişmiş teknolojiye erişim", "Geniş vaka yelpazesi, genç cerrahın tecrübe pekiştirmesi için ideal zemin"], "gCons": ["Yoğun ilçe nüfusu MHRS'de randevu yığılması ve poliklinikte tükenmişlik yaratıyor", "Konya merkeze 150 km sevk sürecinde vital bulgularda instabilite riski", "Şehirlerarası transit yol üzerinde — sık çoklu ağır trafik kazası travması"], "gNot": "Sevk: ~150 km Konya Şehir Hastanesi.", "cc": 7, "dc": -1, "tech": {"rol": "B (Büyük İlçe)", "yatak": "~350", "cerrah": "2-4", "anestezi": "2-4", "ybu": "2. Basamak", "btmr": "Var", "kesin": [], "ek": "İl hastanesi hacminde çalışıyor. Sevk: ~150 km Konya Şehir Hastanesi."}, "u": 8, "whyU": "İki seçenek: Ankara-Konya YHT ~1,45 saat + Konya-Ereğli 150 km, ya da doğrudan 310 km karayolu ~3,5 saat. Ereğli'de tren istasyonu da var (Konya-Adana hattı)."}, {"il": "KİLİS", "hastane": "Prof. Dr. Alaeddin Yavaşca Devlet Hastanesi", "munhal": 1, "km": 710, "a": 5, "b": 5, "c": 6, "e": 4, "d": 4.32, "akp24": 27.28, "akp23": null, "not": "İl devlet hastanesi, ekip mevcut; Gaziantep havalimanına ~70 km. Suriye sınırı — güvenlik değişkeni. Merkez ilçe 2024'te CHP'ye geçti.", "pros": ["İl devlet hastanesi — cerrahi ekip ve yoğun bakım olasılığı yüksek", "Gaziantep'e ~60 km, havalimanına ~70 km — ileri merkez ve ulaşım yakın", "Küçük il, işe erişim kolay; yaşam maliyeti düşük", "Ilıman iklim"], "cons": ["Suriye sınırı — güvenlik değişkeni ve göç kaynaklı hasta yükü", "Ankara'ya ~710 km", "Sosyal ve kültürel olanaklar çok sınırlı; üniversite küçük", "İleri vaka Gaziantep'e sevk edilir"], "tip": "Gaziantep'e yakınlık hem sevk hem yaşam açısından burayı kurtarıyor.", "whyA": "710 km → 500-800 bandı (5-6). Bant içinde 5: Gaziantep Havalimanı ~70 km ile erişim mümkün ama karayolu uzun.", "whyB": "Ilıman iklim ve il merkezi olması artı; Suriye sınırı ve yoğun göç kaynaklı altyapı baskısı 5'te tuttu.", "whyE": "Küçük il; Kilis 7 Aralık Üniversitesi var ama ölçeği minimal. Gaziantep'e 60 km sosyal erişim sağlıyor → 4.", "whyD": "Formül: (CHP 41.98 + İYİ 1.23) ÷ 10 = 4.32. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Kilis Merkez", "parties": {"akp": 27.28, "chp": 41.98, "iyi": 1.23, "mhp": 23.74, "dem": null, "yrp": 2.25, "bbp": 0.47, "dp": null, "sp": 0.7, "bagimsiz": null, "toplam": 43.21}, "chp": 41.98, "iyi": 1.23, "chpiyi": 43.21, "userSupplied": false, "gc": 8, "gRol": "A2 grubu il DH · 400 yatak · Aralık 2022 açılış", "gPros": ["2022'de açılan 400 yataklı son teknoloji bina — muazzam çalışma ergonomisi", "Gaziantep metropolüne 60 km, ileri sevklerde büyük medikolegal güven", "Çoklu uzman istihdamı ile nöbet ve icap saatleri insani standartlarda"], "gCons": ["Sınır hattı dinamiği — dönem dönem ağır mülteci ve çatışma kökenli vakalar", "Hastaların bir kısmıyla tercüman üzerinden iletişim, anamnez zorlukları", "Dev kampüs alanı, acil-servis-ameliyathane üçgeninde fiziksel yorgunluk"], "gNot": "TEKNİK: 50 milyon avroluk AB hibesiyle inşa edildi, 400 yatak, Aralık 2022'de hizmete girdi.", "cc": 6, "dc": 2, "tech": {"rol": "A2 (İl Devlet)", "yatak": "400", "cerrah": "3-5", "anestezi": "3-5", "ybu": "2. veya 3. Basamak", "btmr": "7/24 var", "kesin": ["yatak"], "ek": "50 milyon avroluk AB hibesiyle inşa, Aralık 2022'de hizmete girdi."}, "u": 7, "whyU": "Gaziantep Havalimanı'nın yoğun Ankara hattı kullanılıyor, havalimanı-Kilis ~70 km. Kapıdan kapıya ~3,5 saat. Kilis'in kendi havalimanı yok."}, {"il": "MANİSA", "hastane": "Gördes Devlet Hastanesi", "munhal": 1, "km": 480, "a": 7, "b": 5, "c": 3, "e": 3, "d": 4.78, "akp24": 35.29, "akp23": null, "not": "Batıda, ılıman, Ankara'ya ~480 km. Ancak küçük ilçe hastanesi — tek cerrah riski yüksek, sosyal yaşam sınırlı. 2024'te listenin en yüksek AKP oranı.", "pros": ["Batıda, ılıman iklim; yol kapanma riski yok", "Manisa ve İzmir'e görece erişilebilir", "Düşük hasta yoğunluğu"], "cons": ["Küçük ilçe hastanesi; tek cerrah riski yüksek", "Vaka hacmi düşük — cerrahi beceri körelme riski", "Yoğun bakım ve anestezi devamlılığı kırılgan", "Gördes ilçe merkezi küçük; sosyal yaşam çok sınırlı"], "tip": "Batıda olması cazip görünse de mesleki olarak listenin zayıf hastanelerinden.", "whyA": "480 km → 300-500 bandı (7-8). Bant içinde 7: bant üst sınırına yakın, ilçe konumu Manisa merkeze +100 km ekliyor.", "whyB": "Batı Anadolu ve ılıman iklim artı; ancak Gördes küçük ve iç kesimde bir ilçe, Manisa'nın gelişmiş ilçelerinden değil → 5.", "whyE": "İlçe merkezi küçük; İzmir/Manisa'ya günlük erişim pratik değil → 3.", "whyD": "Formül: (CHP 46.63 + İYİ 1.18) ÷ 10 = 4.78. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Manisa Gördes", "parties": {"akp": 35.29, "chp": 46.63, "iyi": 1.18, "mhp": null, "dem": null, "yrp": 15.08, "bbp": null, "dp": null, "sp": 1.11, "bagimsiz": 0.1, "toplam": 47.81}, "chp": 46.63, "iyi": 1.18, "chpiyi": 47.81, "userSupplied": false, "gc": 3, "gRol": "C grubu ilçe DH", "gPros": ["Ege kültürüne entegre, sakin ve saygılı hasta profili", "Düşük riskli elektif vakalar (herni onarımı, pilonidal sinüs) üzerinden stressiz pratik", "İdari baskı ve yoğun asistanlık sürecinin aksine bağımsız çalışma ortamı"], "gCons": ["Tek genel cerrah kalınan aylarda sosyal hayattan koparan aralıksız icap", "Ege dağlarının virajlı yollarından Akhisar (60 km) veya Manisa'ya (110 km) sevkte ambulans gecikmesi", "Gelişmiş anestezi ve YBÜ yokluğu — majör riskli ameliyata teşebbüs edilemiyor"], "gNot": "Sevk: 60 km Akhisar veya 110 km Manisa merkez.", "cc": 3, "dc": 0, "tech": {"rol": "C (İlçe)", "yatak": "35", "cerrah": "1", "anestezi": "0 veya 1", "ybu": "Yok", "btmr": "Yok", "kesin": ["yatak"], "ek": "Listedeki en küçük hastanelerden. Sevk: 60 km Akhisar / 110 km Manisa."}, "u": 5, "whyU": "480 km karayolu ~5,5 saat. İzmir Havalimanı'na uçmak mümkün ama oradan Gördes'e 150 km dağ yolu var — uçağın avantajı büyük ölçüde kayboluyor."}, {"il": "MARDİN", "hastane": "Midyat Devlet Hastanesi", "munhal": 1, "km": 1050, "a": 3, "b": 4, "c": 4, "e": 4, "d": 0.0, "akp24": 30.36, "akp23": null, "not": "Tarihî-turistik ilçe; ancak hekim kaynaklarına göre kadroda yalnızca 1 genel cerrah — tek başına nöbet riski ciddi. Güneydoğu güvenlik değişkeni. 2024'te oy bölünmesiyle AKP kazandı.", "pros": ["Midyat gelişmiş ve tarihî bir ilçe; nüfus iyi, altyapı fena değil", "Mardin merkeze ~65 km", "Turistik çevre, kültürel doku zengin"], "cons": ["Hekim kaynaklarına göre kadroda yalnızca 1 genel cerrah görünüyor — tek başına 7/24 nöbet riski ciddi", "Ankara'ya ~1050 km", "Bölgesel güvenlik değişkeni", "Yoğun bakım kapasitesi sınırlı; ağır vaka Mardin/Diyarbakır'a sevk"], "tip": "İki kaynak da kadroda tek genel cerrah olduğunda hemfikir. 2 anestezi uzmanı olması ameliyat güvenliği için iyi, ama nöbet yükünün tamamı sizde olacak.", "whyA": "1050 km → 800-1100 bandı (3-4). Bant içinde 3: Mardin Havalimanı ~65 km, sefer sayısı sınırlı.", "whyB": "Midyat gelişmiş ve tarihî bir ilçe, altyapısı bölge ortalamasının üstünde → 4. Bölgesel güvenlik değişkeni yukarı çıkmasını engelledi.", "whyE": "Tarihî doku, turizm, canlı çarşı ilçe ölçeğine göre iyi → 4. Mardin merkeze 65 km.", "whyD": "Formül: CHP+İYİ toplamı 0.00 ÷ 10 = 0.00. Bu yerleşimin CHP ve İYİ kırılımı yüklediğiniz seçim tablosunda boştu; toplam değeri sizin tarafınızdan sağlandı (kullanıcı girdisi). Diğer 22 satır doğrudan tablodan geliyor.", "secimAd": "Mardin Midyat", "parties": {"akp": 30.36, "chp": null, "iyi": null, "mhp": null, "dem": 24.51, "yrp": 16.15, "bbp": 0.29, "dp": 24.36, "sp": 0.57, "bagimsiz": null, "toplam": null}, "chp": null, "iyi": null, "chpiyi": 0.0, "userSupplied": true, "gc": 5, "gRol": "B grubu büyük ilçe DH", "gPros": ["2 anestezi uzmanının varlığı ameliyathanenin efektif kullanımını ve güvenli post-op süreci sağlıyor", "Turistik ve tarihi doku, sağlık profesyoneli için yüksek yaşam kalitesi ve sosyal olanak", "B grubu altyapı: safra kesesi ve apandisitte el hakimiyeti için yeterli vaka hacmi"], "gCons": ["Nüfusun büyüklüğüne karşın TEK cerrah kadrosu — ağır poliklinik yığılması ve aralıksız nöbet baskısı", "Multidisipliner onkoloji ve çoklu organ travma desteğinde Mardin EAH'ye (70 km) bağımlılık", "Acil nöbetlerinde kalabalık hasta yakınlarıyla yönetimsel krizler"], "gNot": "150 tescilli yatak · 12 yataklı YBÜ · 1 genel cerrah (KESİN) · 2 anestezi uzmanı (KESİN). Gemini'nin güncel sürümü Claude'un tek cerrah bulgusunu doğruladı — çelişki kalmadı.", "cc": 4, "dc": 1, "tech": {"rol": "B (Büyük İlçe)", "yatak": "150 tescilli", "cerrah": "1 — KESİN", "anestezi": "2 — KESİN", "ybu": "2. Basamak · 12 yatak", "btmr": "BT var", "kesin": ["yatak", "cerrah", "anestezi", "ybu"], "ek": "ÇELİŞKİ ÇÖZÜLDÜ: Gemini'nin ilk raporu 'güçlü hekim kadrosu' diyordu, güncel sürümde kadroda TEK genel cerrah olduğu kesinleşti — Claude'un kaynağıyla uyuştu. 2 anestezi uzmanı ameliyathane güvenliği için avantaj, ama nöbet ve poliklinik yükünün tamamı tek cerrahta."}, "u": 7, "whyU": "Mardin Havalimanı'na Ankara'dan sefer var, havalimanı-Midyat ~65 km. Kapıdan kapıya ~3,5 saat. Karayolu alternatifi 1050 km ile pratik değil."}, {"il": "MUŞ", "hastane": "Malazgirt Devlet Hastanesi", "munhal": 1, "km": 1050, "a": 3, "b": 2, "c": 4, "e": 2, "d": 0.2, "akp24": 44.93, "akp23": null, "not": "Sert kış, yüksek rakım, düşük gelişmişlik; küçük ilçe hastanesi. Tarihî değeri dışında sosyal olanak az. 2024'te DEM Parti kazandı (sonuç çok yakındı).", "pros": ["Düşük hasta yoğunluğu", "Muş merkeze ~80 km"], "cons": ["Küçük ilçe hastanesi; tek cerrah riski yüksek", "Sert kış, yüksek rakım — sevk lojistiği kışın zorlaşır", "Yoğun bakım ve ileri görüntüleme sınırlı", "Ankara'ya ~1050 km; sosyal olanak neredeyse yok"], "tip": "Anestezi kadrosu yoksa elektif cerrahi pratik olarak durur.", "whyA": "1050 km → 800-1100 bandı (3-4). Bant içinde 3: Muş Havalimanı ~80 km, sınırlı sefer.", "whyB": "SEGE en alt kademelerden; yüksek rakım, sert kış, kırsal ilçe → 2.", "whyE": "1071 tarihî değeri dışında sosyal olanak yok; Muş merkez de küçük → 2.", "whyD": "Formül: CHP+İYİ toplamı 2.00 ÷ 10 = 0.20. Bu yerleşimin CHP ve İYİ kırılımı yüklediğiniz seçim tablosunda boştu; toplam değeri sizin tarafınızdan sağlandı (kullanıcı girdisi). Diğer 22 satır doğrudan tablodan geliyor.", "secimAd": "Muş Malazgirt", "parties": {"akp": 44.93, "chp": 2.37, "iyi": null, "mhp": null, "dem": 49.77, "yrp": null, "bbp": null, "dp": null, "sp": 0.4, "bagimsiz": null, "toplam": null}, "chp": 2.37, "iyi": null, "chpiyi": 2.0, "userSupplied": true, "gc": 3, "gRol": "C grubu ilçe DH", "gPros": ["Toplumun sağlık çalışanına geleneksel saygısı, manevi olarak tatmin edici iletişim", "Düşük mesleki stres, genel cerrahinin temelleri üzerine sade poliklinik rutini", "Katı denetim ve idari bürokrasiden uzak, nispeten otonom çalışma esnekliği"], "gCons": ["Merkeze 135 km — kanamalı travma hastasında çok ağır medikolegal risk", "Kış aylarında kar yağışı yolları kapatıyor, hastane adaya dönüşüyor, sevkler donuyor", "Tayin vb. nedenlerle tek hekim kalındığında ayın her günü icap"], "gNot": "Sevk: ~135 km Muş merkez — listedeki en uzun ilçe-merkez mesafelerinden.", "cc": 4, "dc": -1, "tech": {"rol": "C (İlçe)", "yatak": "100 (50'den çıkarıldı)", "cerrah": "1", "anestezi": "1", "ybu": "1. Basamak", "btmr": "BT var", "kesin": ["yatak"], "ek": "Sevk: 135 km Muş merkez — listedeki en uzun ilçe-merkez mesafelerinden."}, "u": 5, "whyU": "Muş Sultan Alparslan Havalimanı'na uçup 80 km yol. Kapıdan kapıya ~4 saat ama sefer sayısı sınırlı ve kışın yol kapanma riski yüksek."}, {"il": "RİZE", "hastane": "Rize Devlet Hastanesi", "munhal": 2, "km": 750, "a": 5, "b": 6, "c": 7, "e": 6, "d": 1.86, "akp24": 54.7, "akp23": null, "not": "358 yatak, 22 uzmanlık dalı; ekip ve yoğun bakım mevcut. 2 münhal ekip desteği demek. Karadeniz doğası, RTE Üniversitesi. Yağışlı iklim ve uzaklık eksi. ~800-1000 yataklı yeni Rize Şehir Hastanesi projesi (~2027) orta vadeli iyileşme.", "pros": ["358 yatak, 22 uzmanlık dalı — il devlet hastanesi, genel cerrahi ekibi mevcut", "2 münhal kadro: nöbet paylaşımı ve ekip desteği", "Yoğun bakım, anestezi, görüntüleme mevcut", "~800-1000 yataklı yeni Rize Şehir Hastanesi projesi (~2027) — orta vadede altyapı sıçraması", "Karadeniz doğası, RTE Üniversitesi, canlı sahil şehri"], "cons": ["Ankara'ya ~750 km, karayolu uzun", "Sürekli yağışlı iklim — bazı insanlar için zorlayıcı", "İleri vaka KTÜ Farabi'ye (Trabzon) sevk edilir", "Kira ve yaşam maliyeti bölge ortalamasının üstünde"], "tip": "Doğu Karadeniz'de mesleki açıdan en dengeli kadro.", "whyA": "750 km → 500-800 bandı (5-6). Bant içinde 5: bant üst sınırına yakın; Trabzon Havalimanı ~80 km ile Ankara'ya uçuş rahat.", "whyB": "Canlı sahil şehri, il merkezi, güvenli; ancak sürekli yağış ve yüksek yaşam maliyeti 6'da tuttu.", "whyE": "Recep Tayyip Erdoğan Üniversitesi, sahil şeridi, yayla turizmi, Trabzon'a 80 km → 6 (listenin üst sıralarından).", "whyD": "Formül: (CHP 12.14 + İYİ 6.44) ÷ 10 = 1.86. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Rize Merkez", "parties": {"akp": 54.7, "chp": 12.14, "iyi": 6.44, "mhp": null, "dem": 0.17, "yrp": 17.75, "bbp": null, "dp": null, "sp": 2.84, "bagimsiz": null, "toplam": 18.58}, "chp": 12.14, "iyi": 6.44, "chpiyi": 18.58, "userSupplied": false, "gc": 7, "gRol": "A2 grubu tam donanımlı il DH", "gPros": ["Geniş cerrahi donanım ve post-op bakım — genel cerrahinin hemen her operasyonuna imkân", "Rize EAH'ye fiziksel ve idari yakınlık: çaresiz vakalarda hızlı tahliye güvencesi", "Zengin hekim havuzu, nöbetler minimal yorucu, hekim mesaisine odaklanabiliyor"], "gCons": ["Dik araziler ve çay tarımı kaynaklı düşme ve iş kazası travmalarının çokluğu", "Şehir merkezi kamu hastanesi — idari hiyerarşi ve kalite prosedürleri çok katı", "Marka değeri nedeniyle poliklinikte günlük hasta sayısı astronomik"], "gNot": "7/24 radyoloji aktif. Üst düzey onkoloji ve transplantasyon Rize EAH'ye sevk ediliyor.", "cc": 7, "dc": 0, "tech": {"rol": "A2 (İl Devlet)", "yatak": "252 fiili", "cerrah": "3-5", "anestezi": "3-5", "ybu": "2. veya 3. Basamak", "btmr": "7/24 var", "kesin": ["yatak"], "ek": "Rize EAH'ye çok yakın; üst düzey onkoloji ve transplantasyon oraya sevk ediliyor."}, "u": 7, "whyU": "İki havalimanı seçeneği: Rize-Artvin Havalimanı (2022 açılışlı) ve 80 km'deki Trabzon Havalimanı. Trabzon üzerinden gün boyu sefer bulunur, kapıdan kapıya ~3 saat."}, {"il": "TOKAT", "hastane": "Niksar Devlet Hastanesi", "munhal": 1, "km": 430, "a": 7, "b": 6, "c": 5, "e": 4, "d": 2.82, "akp24": 35.58, "akp23": null, "not": "Yeşil vadi, termal, tarihî doku; Tokat'a yakın. İlçe hastanesi orta ölçekli, cerrah sayısı sınırlı olabilir. AKP ilçeyi kazandı.", "pros": ["Orta ölçekli ilçe hastanesi; Niksar yerleşik ve kalabalık bir ilçe", "Tokat merkeze ~55 km — sevk hızlı", "Ankara'ya ~430 km, makul mesafe", "Yeşil vadi, termal kaynaklar, ılıman mikroklima"], "cons": ["Cerrah sayısı sınırlı olabilir; nöbet yükü riski var", "Vaka hacmi il merkezinin altında", "İlçe ölçeğinde sosyal yaşam"], "tip": "Batı-orta Anadolu'da makul bir denge noktası; kadro teyidi yeterli.", "whyA": "430 km → 300-500 bandı (7-8). Bant içinde 7: bant ortası; Tokat Havalimanı küçük, karayolu ana seçenek.", "whyB": "Yeşil vadi, termal kaynaklar, ılıman mikroklima; Niksar yerleşik ve kalabalık bir ilçe → 6.", "whyE": "İlçe ölçeğinde çarşı ve temel hizmetler mevcut; Tokat merkeze 55 km. Kültürel yaşam sınırlı → 4.", "whyD": "Formül: (CHP 18.60 + İYİ 9.56) ÷ 10 = 2.82. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Tokat Niksar", "parties": {"akp": 35.58, "chp": 18.6, "iyi": 9.56, "mhp": 31.36, "dem": null, "yrp": 3.19, "bbp": null, "dp": null, "sp": 0.58, "bagimsiz": null, "toplam": 28.16}, "chp": 18.6, "iyi": 9.56, "chpiyi": 28.16, "userSupplied": false, "gc": 4, "gRol": "B/C grubu büyük ilçe DH", "gPros": ["Tokat merkeze 50 km — güvenli ve stabil sevk süreçleri kolayca idare ediliyor", "En az iki uzman atanma pratiği yüksek, icap döngüsü aylık ~15 güne düşüyor", "Kelkit havzasının iklimsel ve sosyal zenginliği huzurlu yaşam vadediyor"], "gCons": ["Modern GİS tümör rezeksiyonları (mide, kolon) için cerrahi altyapı ve YBÜ yatağı yetersiz", "Yazlıkçı ve gurbetçi dönüş dönemlerinde poliklinik ve acil yükü belirgin artıyor", "Eğitim-araştırma kültüründen uzaklık, literatür ve akademik vakalardan yalıtılma"], "gNot": "Sevk: ~50 km Tokat il merkezi.", "cc": 5, "dc": -1, "tech": {"rol": "B/C (İlçe)", "yatak": "125", "cerrah": "1-2", "anestezi": "1-2", "ybu": "1. Basamak", "btmr": "BT var", "kesin": ["yatak", "poliklinik"], "ek": "35 poliklinik odası. Sevk: 50 km Tokat merkez."}, "u": 6, "whyU": "430 km karayolu ~5 saat, otobüs seferleri düzenli. Tokat Havalimanı'nın sefer sıklığı düşük olduğu için karayolu ana seçenek."}, {"il": "TRABZON", "hastane": "Araklı Bayram Halil Devlet Hastanesi", "munhal": 1, "km": 770, "a": 5, "b": 6, "c": 4, "e": 5, "d": 0.5, "akp24": 42.09, "akp23": null, "not": "Karadeniz sahili, Trabzon'a ~30 km (havalimanı, üniversite, AVM). İlçe hastanesi küçük; nöbet yükü olabilir. Sosyal olanaklara erişim kolay.", "pros": ["Trabzon merkeze ~30 km — havalimanı, KTÜ Farabi Hastanesi, AVM çok yakın", "Şehirde yaşayıp ilçede çalışma imkânı", "Ağır vaka hızlıca Trabzon'a sevk edilebilir; sorumluluk baskısı azalır", "Karadeniz sahili, doğa ve yayla"], "cons": ["Küçük ilçe hastanesi; cerrah sayısı düşük, nöbet yükü olabilir", "Vaka hacmi ve ameliyat çeşitliliği sınırlı — büyük merkez yanı başında olduğu için hastalar oraya gidiyor", "Yoğun bakım kapasitesi kısıtlı", "Ankara'ya ~770 km"], "tip": "Yaşam kalitesi iyi, cerrahi gelişim zayıf — bu takası kabul ediyor musunuz?", "whyA": "770 km → 500-800 bandı (5-6). Bant içinde 5: karayolu uzun, ancak Trabzon Havalimanı ~30 km ile Ankara'ya çok sık uçuş var.", "whyB": "Karadeniz sahili, Trabzon metropolüne 30 km; güvenli ve gelişmiş bölge → 6. Yağışlı iklim ve dar sahil şeridi yukarı çıkmasını engelledi.", "whyE": "Trabzon'a 30 km: KTÜ, AVM, havalimanı, stadyum günlük erişimde. Araklı'nın kendisi sakin → 5.", "whyD": "Formül: CHP+İYİ toplamı 5.00 ÷ 10 = 0.50. Bu yerleşimin CHP ve İYİ kırılımı yüklediğiniz seçim tablosunda boştu; toplam değeri sizin tarafınızdan sağlandı (kullanıcı girdisi). Diğer 22 satır doğrudan tablodan geliyor.", "secimAd": "Trabzon Araklı", "parties": {"akp": 42.09, "chp": 5.73, "iyi": null, "mhp": null, "dem": 0.23, "yrp": 22.4, "bbp": 2.89, "dp": null, "sp": 16.06, "bagimsiz": 7.13, "toplam": null}, "chp": 5.73, "iyi": null, "chpiyi": 5.0, "userSupplied": true, "gc": 4, "gRol": "C grubu sahil ilçe DH · elektif ağırlıklı", "gPros": ["Sahilyolu sayesinde Trabzon'daki metropol merkezlere 30-40 dakika — devasa malpraktis güvencesi", "Lipom, pilonidal sinüs, basit herni ağırlıklı, operasyon stresi minimum", "Trabzon'un sosyo-kültürel imkânlarına günübirlik entegre olunabiliyor"], "gCons": ["Teknik limitasyonlar çok belirgin, el becerisinde ciddi durağanlaşma", "Hastalar büyük ameliyat için doğrudan Trabzon'a gidiyor — majör vaka sayısı sıfıra yakın", "Cerrah sayısı dönemsel olarak bire indiğinde denizin kıyısında bile 7/24 icapçılık"], "gNot": "Sevk: ~35 km Trabzon EAH veya KTÜ Tıp Fakültesi.", "cc": 4, "dc": 0, "tech": {"rol": "C (Sahil İlçe)", "yatak": "100", "cerrah": "1", "anestezi": "1", "ybu": "1. Basamak", "btmr": "BT var", "kesin": ["yatak"], "ek": "Sevk: 35 km Trabzon EAH / KTÜ Tıp Fakültesi."}, "u": 8, "whyU": "Trabzon Havalimanı Türkiye'nin en yoğun hatlarından, Ankara'dan gün boyu sefer var. Havalimanı-Araklı 30 km sahilyolu. Kapıdan kapıya ~2,5-3 saat."}, {"il": "TUNCELİ", "hastane": "Tunceli Devlet Hastanesi", "munhal": 1, "km": 850, "a": 4, "b": 5, "c": 5, "e": 5, "d": 3.4, "akp24": 13.34, "akp23": 13.34, "not": "Munzur doğası, rafting, seküler ve serbest sosyal yapı (alkol erişimi rahat), Munzur Üniversitesi. İl devlet hastanesi küçük ölçekli. AKP oyu %13,34 ile listenin en düşüğü; ilçeyi DEM Parti kazandı.", "pros": ["İl devlet hastanesi — ilçe hastanelerine göre daha kurumsal", "Düşük nüfus = düşük hasta yoğunluğu, sakin tempo", "Munzur doğası, rafting; seküler ve serbest sosyal yapı", "Munzur Üniversitesi; küçük ama canlı bir sosyal çevre"], "cons": ["İl olsa da hastane küçük ölçekli; cerrah sayısı sınırlı olabilir", "Vaka hacmi çok düşük — cerrahi beceri körelme riski", "İleri vaka Elazığ'a sevk edilir (~130 km)", "Ankara'ya ~850 km; kışın dağ yolları zorlu"], "tip": "Sosyal yaşam tercihiniz baskınsa güçlü aday; mesleki gelişim beklemeyin.", "whyA": "850 km → 800-1100 bandı (3-4). Bant içinde 4: bant alt sınırında; Elazığ Havalimanı ~130 km.", "whyB": "Munzur doğası ve düşük suç oranı artı; ancak SEGE alt kademe, dağlık coğrafya, kışın zorlu yollar → 5.", "whyE": "Munzur Üniversitesi, rafting/doğa turizmi, seküler ve serbest sosyal yapı (alkol erişimi rahat) → 5. Küçük il olması sınırlıyor.", "whyD": "Formül: (CHP 33.33 + İYİ 0.67) ÷ 10 = 3.40. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Tunceli Merkez", "parties": {"akp": 13.34, "chp": 33.33, "iyi": 0.67, "mhp": null, "dem": 40.22, "yrp": 0.64, "bbp": null, "dp": null, "sp": 0.08, "bagimsiz": 7.63, "toplam": 34.0}, "chp": 33.33, "iyi": 0.67, "chpiyi": 34.0, "userSupplied": false, "gc": 6, "gRol": "A2 grubu il DH", "gPros": ["İstatistiksel olarak sağlık personeline en duyarlı ve saygılı hasta popülasyonlarından biri", "İl hastanesi olması: ameliyathane malzemesi ve orta/üst düzey YBÜ standartları yeterli", "Birden fazla uzman kadroyu paylaşıyor, aşırı yorgunluk ve uzun nöbetler önleniyor"], "gCons": ["Çetin kışlarda çevre il yolları riske giriyor, kritik vakada tüm sorumluluk hekimde", "İleri onkoloji ve kompleks anastomozda Elazığ Şehir Hastanesi lojistiğine zorunlu bağımlılık", "Küçük il nüfusu, limitli başvuru — vaka spektrumu çok dar"], "gNot": "Sevk: 80 km Elazığ Fethi Sekin Şehir Hastanesi.", "cc": 5, "dc": 1, "tech": {"rol": "A2 (İl Devlet)", "yatak": "150", "cerrah": "2-3", "anestezi": "2-3", "ybu": "2. Basamak", "btmr": "Var", "kesin": ["yatak"], "ek": "Sevk: 80 km Elazığ Fethi Sekin Şehir Hastanesi."}, "u": 6, "whyU": "Elazığ Havalimanı Ankara'ya bağlı, uçuş ~1,5 saat; havalimanı-Tunceli 130 km, ~2 saat. Kapıdan kapıya ~4 saat. Kışın dağ yolu zorlaşır."}, {"il": "UŞAK", "hastane": "Banaz Devlet Hastanesi", "munhal": 1, "km": 300, "a": 8, "b": 6, "c": 4, "e": 4, "d": 2.96, "akp24": 28.91, "akp23": 42.92, "not": "Ankara'ya ~300 km, batıda küçük ilçe. Uşak merkeze yakın. Küçük hastane nedeniyle nöbet yükü riski. 2024'te bağımsız aday kazandı.", "pros": ["Ankara'ya ~300 km; batıda konumlanma avantajı", "Uşak merkeze ~40 km — sevk ve şehir erişimi hızlı", "Ilıman iklim, yol sorunu yok", "Sakin ve güvenli ilçe"], "cons": ["Küçük ilçe hastanesi; tek cerrah riski yüksek", "Vaka hacmi düşük, ameliyat çeşitliliği sınırlı", "Yoğun bakım ve anestezi devamlılığı kırılgan", "İlçede sosyal yaşam çok sınırlı"], "tip": "Coğrafi konum iyi, hastane zayıf — cerrah sayısı teyidi kararı belirler.", "whyA": "300 km → <300/300-500 bant sınırı. 8 verildi: bant sınırında, otoyol bağlantısı iyi, Ankara'ya ~3 saat.", "whyB": "Batı Anadolu, ılıman, güvenli; Uşak SEGE'de orta-üst kademede → 6. İlçe ölçeği yukarı çıkmasını engelledi.", "whyE": "Banaz küçük bir ilçe; Uşak merkeze 40 km (üniversite, AVM) günlük erişimde → 4.", "whyD": "Formül: (CHP 28.76 + İYİ 0.84) ÷ 10 = 2.96. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Uşak Banaz", "parties": {"akp": 28.91, "chp": 28.76, "iyi": 0.84, "mhp": 4.81, "dem": 0.02, "yrp": 0.66, "bbp": null, "dp": null, "sp": 0.4, "bagimsiz": 32.79, "toplam": 29.6}, "chp": 28.76, "iyi": 0.84, "chpiyi": 29.6, "userSupplied": false, "gc": 3, "gRol": "C grubu ilçe DH", "gPros": ["Uşak merkeze otoyoldan 35 km — sevk zincirindeki medikolegal stres tamamen kalkıyor", "Poliklinik yoğunluğu elektif ve mesai içinde çözülebilen teşhis süreçlerinden oluşuyor", "Şehir merkezi standardında sosyal hayat + ilçenin stressiz işleyişi"], "gCons": ["Tek uzman atanma ihtimali çok yüksek — ayın 30 günü kesintisiz icap", "Harmonik koter ve ileri laparoskopi setleri yok, majör operasyonlardan uzaklaşma", "Anestezi desteği zayıfsa ameliyathane salonu verimsiz kullanılıyor"], "gNot": "Sevk: 35 km Uşak EAH.", "cc": 4, "dc": -1, "tech": {"rol": "C (İlçe)", "yatak": "50", "cerrah": "1", "anestezi": "0 veya 1", "ybu": "Yok", "btmr": "Yok", "kesin": ["yatak"], "ek": "YBÜ ve BT yok. Sevk: 35 km Uşak EAH, otoyol üzerinden."}, "u": 7, "whyU": "300 km, otoyol üzerinden ~3,5 saat ve Banaz doğrudan güzergâh üzerinde. Uşak Havalimanı'nın sefer sıklığı düşük, karayolu daha pratik."}, {"il": "VAN", "hastane": "Çaldıran Devlet Hastanesi", "munhal": 1, "km": 1250, "a": 1, "b": 1, "c": 3, "e": 1, "d": null, "akp24": 34.15, "akp23": null, "not": "~2000 m rakım, Türkiye'nin en sert kışlarından; sınır ilçesi, güvenlik değişkeni; çok küçük hastane, tek cerrah neredeyse kesin. Sosyal yaşam neredeyse yok. İlçeyi DEM Parti kazandı.", "pros": ["Hasta yoğunluğu düşük", "Lojman ve düşük yaşam maliyeti"], "cons": ["Çok küçük hastane; tek cerrah neredeyse kesin", "~2000 m rakım, Türkiye'nin en sert kışlarından — kışın yollar kapanabilir, acil sevk riskli", "Yoğun bakım, anestezi ve görüntüleme desteği asgari düzeyde", "Ankara'ya ~1250 km; Van merkeze ~90 km", "Sınır ilçesi; sosyal yaşam neredeyse yok"], "tip": "Mesleki izolasyon açısından listenin en riskli iki kadrosundan biri.", "whyA": "1250 km → >1100 bandı (1-2). Bant içinde 1: listenin en uzaklarından, Van Ferit Melen'e ~90 km dağ yolu.", "whyB": "~2000 m rakım, Türkiye'nin en sert kışlarından; SEGE en alt kademe, sınır ilçesi → 1 (listenin en düşüğü).", "whyE": "İlçede sosyal olanak yok denecek düzeyde; Van merkeze 90 km → 1.", "whyD": "Veri eksik: kaynak tabloda İYİ Parti oranı bu yerleşim için boş. Toplam hesaplanamadığı için bu kriter bu satırın ortalamasından çıkarıldı; sıfır sayılmadı.", "secimAd": "Van Çaldıran", "parties": {"akp": 34.15, "chp": 1.47, "iyi": null, "mhp": null, "dem": 47.71, "yrp": 15.46, "bbp": null, "dp": null, "sp": 0.34, "bagimsiz": null, "toplam": null}, "chp": 1.47, "iyi": null, "chpiyi": null, "userSupplied": false, "gc": 3, "gRol": "C grubu izole sınır ilçe DH (İran sınırına yakın)", "gPros": ["Bölgedeki diğer küçük ilçe hekimleriyle olağanüstü dayanışma ve mesleki kardeşlik", "Coğrafi ve ekonomik katsayılar sayesinde nöbet ve ek ödeme performansı finansal olarak yüksek", "Cerrahi poliklinik daha çok medikal takip ve minör girişim — elektif cerrahi baskısı yok"], "gCons": ["Ekstrem kış şartlarındaki 110 km Van yolu, rüptüre dalak gibi vakalarda yüksek mortalite riski", "Ciddi ihtimalle tek genel cerrah — sosyal izolasyon eşliğinde aralıksız icap", "Üst basamak YBÜ ve güçlü anestezi yok, operasyon pratiği asgari seviyeye iniyor"], "gNot": "Sevk: 110 km Van EAH, zorlu koşullar altında.", "cc": 3, "dc": 0, "tech": {"rol": "C (İzole sınır ilçe)", "yatak": "100", "cerrah": "1", "anestezi": "0 veya 1", "ybu": "1. Basamak", "btmr": "Kısıtlı", "kesin": ["yatak"], "ek": "Sevk: 110 km Van EAH, kışın ekstrem koşullarda."}, "u": 4, "whyU": "Van Ferit Melen Havalimanı'nın Ankara hattı yoğun, bu bir avantaj; ancak havalimanı-Çaldıran 90 km yüksek rakımlı yol ~1,5 saat. Kışın bu bölüm çok riskli."}, {"il": "VAN", "hastane": "Çatak Devlet Hastanesi", "munhal": 1, "km": 1300, "a": 1, "b": 1, "c": 2, "e": 1, "d": null, "akp24": 27.07, "akp23": null, "not": "Listenin en zor tercihi. Dağlık, kışın yolları kapanan izole ilçe; en küçük hastanelerden — tek cerrah, minimal yoğun bakım/anestezi/görüntüleme. Hem mesleki hem sosyal en yüksek risk.", "pros": ["Çok düşük hasta yoğunluğu", "Doğa manzarası, tam sessizlik"], "cons": ["Listenin en küçük hastanesi; tek cerrah kesin gibi", "Dağlık ve izole; kışın yollar kapanır — komplike vakada sevk edememe riski gerçek", "Yoğun bakım/anestezi/ileri görüntüleme büyük olasılıkla yok veya asgari", "Ankara'ya ~1300 km, Van merkeze dağ yolu", "Sosyal yaşam yok denecek düzeyde"], "tip": "Hem mesleki hem yaşamsal olarak listenin en zor tercihi — son çare olarak değerlendirin.", "whyA": "1300 km → >1100 bandı (1-2). Bant içinde 1: listenin en uzağı; Van'a dağ yolu, kışın kapanabilir.", "whyB": "Dağlık ve izole, kışın yol kapanması rutin; SEGE en alt kademe → 1.", "whyE": "Çok küçük dağ ilçesi; sosyal olanak yok → 1.", "whyD": "Veri eksik: kaynak tabloda İYİ Parti oranı bu yerleşim için boş. Toplam hesaplanamadığı için bu kriter bu satırın ortalamasından çıkarıldı; sıfır sayılmadı.", "secimAd": "Van Çatak", "parties": {"akp": 27.07, "chp": 1.33, "iyi": null, "mhp": null, "dem": 57.89, "yrp": 9.04, "bbp": null, "dp": null, "sp": null, "bagimsiz": null, "toplam": null}, "chp": 1.33, "iyi": null, "chpiyi": null, "userSupplied": false, "gc": 2, "gRol": "D grubu küçük ve çok izole ilçe DH", "gPros": ["İdari dinamik ve performans beklentisi sıfıra yakın, tam mental rahatlık", "Doğayla iç içe; mesleki okuma veya yandal sınav hazırlığına olağanüstü boş zaman", "Komplike laparoskopik cerrahi beklenmediği için malpraktis endişesi sevk yönetimiyle sınırlı"], "gCons": ["EN YÜKSEK KIRMIZI ALARM: anestezi doktoru, kan bankası ve cerrahi altyapı sıfır noktasında", "Sarp dağ yollarında Van'a 85 km sevkte travma hastasının durumu kritik kötüleşiyor", "Hiçbir ameliyat yapılamamasına rağmen tek icapçı olarak her an çağrılma zorunluluğu"], "gNot": "Gemini bu hastaneyi 'Kırmızı Alan / maksimum malpraktis riski' olarak sınıflandırdı.", "cc": 2, "dc": 0, "tech": {"rol": "D (İzole İlçe)", "yatak": "30 (yeni bina)", "cerrah": "1", "anestezi": "YOK (0)", "ybu": "YOK", "btmr": "Yok", "kesin": ["yatak", "anestezi", "ybu"], "ek": "EN YÜKSEK KIRMIZI ALARM. Anestezi doktoru, kan bankası ve cerrahi altyapı sıfır noktasında. Sevk: 85 km Van merkez, sarp vadi yolları."}, "u": 3, "whyU": "Van Ferit Melen'e uçuş kolay ama havalimanı-Çatak 85 km sarp vadi yolu, ~2 saat. Kapıdan kapıya ~4,5 saat ve kışın yol kapanabildiği için erişim garanti değil. Listenin en zoru."}, {"il": "YOZGAT", "hastane": "Yozgat Şehir Hastanesi", "munhal": 1, "km": 220, "a": 10, "b": 5, "c": 9, "e": 5, "d": 0.4, "akp24": 26.81, "akp23": null, "not": "Türkiye'nin ilk şehir hastanesi (16 Ocak 2017); 475 yatak, 113 poliklinik, 18 ameliyathane, 88 yoğun bakım yatağı — ekip güçlü, tek cerrah riski düşük. Ankara'ya ~220 km + YHT bağlantısı büyük avantaj.", "pros": ["Türkiye'nin ilk şehir hastanesi (2017): 475 yatak, 113 poliklinik, 18 ameliyathane, 88 yoğun bakım yatağı", "Ekip, yoğun bakım, anestezi, ileri görüntüleme tam — tek başına nöbet riski düşük", "Modern bina ve ekipman; ameliyathane kapasitesi listenin en iyilerinden", "Ankara'ya ~220 km + Ankara-Sivas YHT bağlantısı — ulaşım çok rahat", "Bozok Üniversitesi ile bağlantılı akademik ortam"], "cons": ["Yozgat şehri küçük; sosyal ve kültürel olanaklar sınırlı", "İç Anadolu, rüzgarlı ve soğuk kış", "Şehir hastanesi iş yükü ilçe hastanesinden ağır", "Şehir merkezine mesafe nedeniyle ulaşım aracı gerekebilir"], "tip": "Altyapı/ekip açısından listenin en güçlü kadrolarından; Kırşehir'le birlikte ilk iki.", "whyA": "220 km → <300 km bandı (9-10). Bant içinde 10: Kırşehir ile birlikte en yakınlardan; ayrıca Ankara-Sivas YHT hattı ek avantaj.", "whyB": "İl merkezi, güvenli, yaşam maliyeti düşük; ancak İç Anadolu'nun rüzgarlı-soğuk kışı ve SEGE'de orta-alt konum → 5.", "whyE": "Bozok Üniversitesi var, şehir küçük; kültürel olanaklar sınırlı. Ankara yakınlığı ve YHT sosyal ihtiyacı telafi ediyor → 5.", "whyD": "Formül: CHP+İYİ toplamı 4.00 ÷ 10 = 0.40. Bu yerleşimin CHP ve İYİ kırılımı yüklediğiniz seçim tablosunda boştu; toplam değeri sizin tarafınızdan sağlandı (kullanıcı girdisi). Diğer 22 satır doğrudan tablodan geliyor.", "secimAd": "Yozgat Merkez", "parties": {"akp": 26.81, "chp": null, "iyi": null, "mhp": 29.78, "dem": null, "yrp": 36.33, "bbp": null, "dp": null, "sp": null, "bagimsiz": null, "toplam": null}, "chp": null, "iyi": null, "chpiyi": 4.0, "userSupplied": true, "gc": 9, "gRol": "A1 grubu Şehir Hastanesi · çoklu cerrah kadrosu teyitli", "gPros": ["Muazzam uzman havuzu — sadece resmi nöbette hastaneye gelme, kalan günler icapsız", "İleri teknoloji YBÜ, sınırsız sarf ve anestezi desteğiyle en kompleks kanser cerrahisi sorunsuz", "3D laparoskopi ve bariatrik cerrahi dahil ileri gelişim platformu"], "gCons": ["Şehir hastanesi konsepti — MHRS randevularında akıl almaz hasta muayene mecburiyeti", "Yozgat ve tüm periferik ilçelerden gece akan kanamalı ve majör travmalar, uykusuz nöbetler", "Çok katlı geniş kampüs, konsültasyonlara giderken fiziksel efor"], "gNot": "Kadroda çoklu cerrah teyitli (5+). Gemini'nin listedeki en yüksek iki puanından biri.", "cc": 9, "dc": 0, "tech": {"rol": "A1 (Şehir Hastanesi)", "yatak": "475", "cerrah": "Çoklu (5+)", "anestezi": "5+", "ybu": "3. Basamak · 88 yatak", "btmr": "7/24 var", "kesin": ["yatak", "ameliyathane", "ybu"], "ek": "18 ameliyathane. Çoklu hekim kadrosu doğrulandı."}, "u": 9, "whyU": "Ankara-Sivas YHT hattının Yozgat durağı var — hızlı trenle ~1,5 saat. Ayrıca 220 km karayolu ve çok sık otobüs. Listedeki en kolay erişim."}, {"il": "ŞANLIURFA", "hastane": "Şanlıurfa Şehir Hastanesi", "munhal": 4, "km": 800, "a": 5, "b": 5, "c": 8, "e": 5, "d": 0.2, "akp24": 33.64, "akp23": 42.9, "not": "1700 yatak, 63 ameliyathane, 547 yoğun bakım yatağı; 3 Ekim 2026 açılış planlı. 4 münhal — geniş ekip, ileri cerrahi hacim. İş yükü ağır, iklim çok sıcak, sosyal yapı muhafazakâr. Büyükşehri YRP kazandı.", "pros": ["1700 yatak, 63 ameliyathane, 547 yoğun bakım yatağı — Türkiye'nin en büyük hastanelerinden", "4 münhal kadro: geniş genel cerrahi ekibi, nöbet rahat paylaşılır", "Çok yüksek vaka hacmi ve çeşitliliği — cerrahi gelişim için listenin en verimlisi", "Yeni bina, ileri teknoloji ekipman", "Bölgenin referans merkezi; kompleks vaka deneyimi"], "cons": ["Rapor tarihinde henüz açılış aşamasındaydı (3 Ekim 2026 planlı) — yeni açılan hastanelerde ilk yıl kaos olabilir", "Çok ağır iş yükü ve kalabalık acil", "Aşırı sıcak iklim (yazın 45°C+)", "Ankara'ya ~800 km; sosyal yapı muhafazakâr"], "tip": "Açılış takvimi ve kadro durumu kura öncesi mutlaka teyit edilmeli.", "whyA": "800 km → 500-800/800-1100 bant sınırı. 5 verildi: bant sınırında; Şanlıurfa GAP Havalimanı Ankara'ya düzenli sefer yapıyor.", "whyB": "Büyükşehir altyapısı artı; ancak aşırı sıcak yaz (45°C+), SEGE alt-orta kademe, yoğun göç → 5.", "whyE": "Harran Üniversitesi, tarihî Göbeklitepe/Balıklıgöl, büyük şehir hizmetleri → 5. Muhafazakâr sosyal yapı ve sıcak iklim sınırlıyor.", "whyD": "Formül: (CHP 1.51 + İYİ 0.51) ÷ 10 = 0.20. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Şanlıurfa Büyükşehir", "parties": {"akp": 33.64, "chp": 1.51, "iyi": 0.51, "mhp": null, "dem": 21.16, "yrp": 38.87, "bbp": null, "dp": 0.12, "sp": 0.81, "bagimsiz": null, "toplam": 2.02}, "chp": 1.51, "iyi": 0.51, "chpiyi": 2.02, "userSupplied": false, "gc": 9, "gRol": "A1 grubu Şehir Hastanesi · ~1700 yatak · sismik izolatörlü", "gPros": ["Bölgenin en büyük kapasiteli ve sismik izolatörlü yeni sağlık üssü, modern tıbbın tüm imkânları", "Onlarca cerrahın rotasyonu — tamamen öngörülebilir, aileye zaman bırakan aktif nöbet takvimi", "Çok geniş ve karmaşık vaka çeşitliliği, uzmanlık becerilerini zirveye çıkarma vizyonu"], "gCons": ["Şanlıurfa'nın çok yüksek demografik artışı acil travma ve poliklinik başvurularını domine ediyor", "Kalabalık aşiret ve aile yapıları acil servis krizlerinde yıkıcı iletişim problemleri yaratıyor", "Devasa kampüs boyutları, hastane içi lojistik yorucu idari kurallarla iç içe"], "gNot": "Açıldığında tüm Güneydoğu'nun Ortadoğu bağlantılı sağlık üssü olacak.", "cc": 8, "dc": 1, "tech": {"rol": "A1 (Şehir Hastanesi)", "yatak": "1700", "cerrah": "Çoklu (10+)", "anestezi": "10+", "ybu": "3. Basamak", "btmr": "7/24 var", "kesin": [], "ek": "Sismik izolatörlü yeni kompleks. Ameliyathane ve YBÜ dağılımı için kesin veri yok."}, "u": 8, "whyU": "GAP Havalimanı'na Ankara'dan düzenli sefer, uçuş ~1,5 saat. Havalimanı şehre 35 km. Kapıdan kapıya ~3 saat."}, {"il": "ŞIRNAK", "hastane": "Cizre Dr. Selahattin Cizrelioğlu Devlet Hastanesi", "munhal": 2, "km": 1150, "a": 2, "b": 3, "c": 5, "e": 2, "d": 0.18, "akp24": 19.1, "akp23": null, "not": "Ortalaması düşük görünse de nöbet yükü açısından ilçe hastaneleri içinde en avantajlılarından: 4 genel cerrah, ~20 kişilik acil nöbet havuzu, 2 münhal. Buna karşın hijyen/fiziki şikâyetler, güvenlik geçmişi, aşırı sıcak ve uzaklık eksi. Lojman ve ucuz kira mevcut.", "pros": ["Kadroda 4 genel cerrah uzmanı — ilçe hastaneleri içinde nöbet yükü en rahat olanlardan", "~20 kişilik acil nöbet havuzu (hekim paylaşımlarına göre)", "2 münhal kadro; toplam ~30 uzman, 18 branş — kurumsal bir yapı", "Yüksek hasta hacmi: bölgenin yoğun ilçelerinden, vaka çeşitliliği fena değil", "Lojman ve çok ucuz kira imkânı"], "cons": ["Hijyen ve fiziki koşullara dair hasta şikâyetleri mevcut", "Bölgesel güvenlik geçmişi", "Ankara'ya ~1150 km — listenin en uzaklarından", "Aşırı sıcak yaz; sosyal yaşam çok kısıtlı"], "tip": "Puanı düşük ama mesleki nöbet yükü açısından beklenmedik şekilde iyi bir kadro.", "whyA": "1150 km → >1100 bandı (1-2). Bant içinde 2: Şırnak Şerafettin Elçi Havalimanı ~60 km ile erişim mümkün, bu yüzden 1 değil.", "whyB": "SEGE en alt kademelerden; aşırı sıcak yaz, bölgesel güvenlik geçmişi → 3. Cizre'nin kalabalık ve canlı bir ilçe olması 2'den 3'e çıkardı.", "whyE": "Kalabalık ilçe, çarşı canlı; ancak kültürel/rekreasyon altyapısı ve eş iş imkânı çok sınırlı → 2.", "whyD": "Formül: (CHP 1.57 + İYİ 0.27) ÷ 10 = 0.18. Yüksek CHP+İYİ toplamı yüksek puan alır. Kaynak: yüklediğiniz 31 Mart 2024 yerel seçim tablosu (belediye başkanlığı seçimi).", "secimAd": "Şırnak Cizre", "parties": {"akp": 19.1, "chp": 1.57, "iyi": 0.27, "mhp": null, "dem": 72.88, "yrp": 0.65, "bbp": null, "dp": null, "sp": 0.12, "bagimsiz": null, "toplam": 1.84}, "chp": 1.57, "iyi": 0.27, "chpiyi": 1.84, "userSupplied": false, "gc": 6, "gRol": "B grubu ilçe DH · il hastanesi hacminde çalışıyor", "gPros": ["Çoğunlukla birden çok hekim, nöbetler koordinasyonla insani standartlara indirgenebiliyor", "Bölge hastanesi mantığı: apandisit, safra ve rezeksiyon için tüm malzeme hazır", "Çok yüksek sirkülasyon — cerrahi refleks ve el çabukluğunda hızlı profesyonelleşme"], "gCons": ["Yüksek travma yoğunluğu (ateşli silah, kesici delici alet) acil nöbetlerini kâbusa çeviriyor", "Kalabalık hasta yakınlarının acil serviste ve koridorlarda yarattığı mental tansiyon", "İleri komplikasyonlu tümör vakalarında Diyarbakır'a ~250 km uzun sevk çilesi"], "gNot": "Claude'un kaynağı 4 genel cerrah + ~20 kişilik acil nöbet havuzu diyordu; Gemini de çoklu hekim teyit ediyor.", "cc": 5, "dc": 1, "tech": {"rol": "B (Büyük İlçe)", "yatak": "217 tescilli", "cerrah": "2-4", "anestezi": "2-4", "ybu": "2. Basamak", "btmr": "Var", "kesin": ["yatak"], "ek": "Claude'un kaynağı 4 genel cerrah + ~20 kişilik acil nöbet havuzu bildiriyor."}, "u": 4, "whyU": "Şırnak Şerafettin Elçi Havalimanı Cizre'ye ~60 km ama sefer sıklığı düşük; alternatif Diyarbakır 250 km uzakta. Kapıdan kapıya ~5 saat."}];
+const KEYS = [['a','w-a'],['u','w-u'],['b','w-b'],['c','w-c'],['e','w-e'],['d','w-d']];
+let sortK='total', sortD=-1, openNotes=new Set(), openPC=new Set(), openPG=new Set(), openWhy=new Set();
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function weights(){
+  const w={};
+  KEYS.forEach(([k,id])=>w[k]=parseFloat($(id).value));
+  return w;
+}
+function effC(d){
+  const m=$('srcC').value;
+  if(m==='cc') return d.cc;
+  if(m==='gc') return d.gc;
+  return (d.cc+d.gc)/2;
+}
+function total(d,w){
+  let num=0,den=0;
+  for(const [k] of KEYS){
+    let v = (k==='c') ? effC(d) : d[k];
+    if(v===null||v===undefined) continue;
+    num += v*w[k]; den += w[k];
+  }
+  return den===0 ? null : num/den;
+}
+function cls(v){ return v>=6.5?'s-hi':v>=4.5?'s-md':'s-lo'; }
+
+function compute(){
+  const w=weights();
+  DATA.forEach(d=>{d.c=effC(d); d.total=total(d,w);});
+}
+
+function filtered(){
+  const q=$('q').value.trim().toLocaleLowerCase('tr');
+  const km=$('fKm').value, mn=$('fMunhal').value, akp=$('fAkp').checked;
+  return DATA.filter(d=>{
+    if(km && d.km>+km) return false;
+    if(mn && d.munhal<+mn) return false;
+    if(akp && d.chpiyi===null) return false;
+    if($('fRisk').checked && (d.tech.cerrah.includes('1 —') || d.tech.anestezi.includes('YOK'))) return false;
+    if(q){
+      const hay=(d.il+' '+d.hastane+' '+d['not']).toLocaleLowerCase('tr');
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function render(){
+  compute();
+  const rows=filtered();
+  rows.sort((x,y)=>{
+    let a=x[sortK], b=y[sortK];
+    if(a===null||a===undefined) return 1;
+    if(b===null||b===undefined) return -1;
+    if(typeof a==='number') return (a-b)*sortD;
+    return String(a).localeCompare(String(b),'tr')*sortD;
+  });
+
+  const avg = rows.filter(d=>d.total!==null).reduce((s,d)=>s+d.total,0)/Math.max(1,rows.filter(d=>d.total!==null).length);
+  $('stats').innerHTML=`<b>${rows.length}</b> / 30 kadro gösteriliyor · Ortalama puan: <b>${avg.toFixed(2)}</b> · Toplam kontenjan: <b>${rows.reduce((s,d)=>s+d.munhal,0)}</b>`;
+
+  let html='';
+  rows.forEach((d,i)=>{
+    const key=d.il+'|'+d.hastane;
+    const t=d.total;
+    html+=`<tr>
+      <td class="rank" data-l="Sıra">${i+1}</td>
+      <td class="il" data-l="İl">${esc(d.il)}</td>
+      <td class="hosp" data-l="Hastane"><span class="opendet" data-det="${esc(key)}">${esc(d.hastane)}</span></td>
+      <td class="num" data-l="Münhal"><span class="munhal">${d.munhal}</span></td>
+      <td class="num" data-l="Ankara km">${d.km}</td>
+      <td class="num why" data-why="A" data-l="Mesafe P." data-key="${esc(key)}"><span class="v ${openWhy.has(key+'|A')?'open':''}">${d.a}</span></td>
+      <td class="num why" data-why="U" data-l="Ulaşım" data-key="${esc(key)}"><span class="v ${openWhy.has(key+'|U')?'open':''}">${d.u}</span></td>
+      <td class="num why" data-why="B" data-l="Yaşam" data-key="${esc(key)}"><span class="v ${openWhy.has(key+'|B')?'open':''}">${d.b}</span></td>
+      <td class="num cscore" data-l="Hastane · Claude" data-pc="${esc(key)}"><span class="cbtn ${openPC.has(key)?'open':''}">${d.cc}</span></td>
+      <td class="num gscore" data-l="Hastane · Gemini" data-pg="${esc(key)}"><span class="gbtn ${openPG.has(key)?'open':''}">${d.gc}</span></td>
+      <td class="num" data-l="Fark"><span class="diff ${d.dc>0?'dp':d.dc<0?'dn':'dz'}">${d.dc>0?'+':''}${d.dc}</span></td>
+      <td class="num why" data-why="E" data-l="Sosyal" data-key="${esc(key)}"><span class="v ${openWhy.has(key+'|E')?'open':''}">${d.e}</span></td>
+      <td class="num" data-l="AKP %">${d.akp24!==null?d.akp24.toFixed(2):'<span class="na">–</span>'}</td>
+      <td class="num" data-l="CHP %">${d.chp!==null?d.chp.toFixed(2):'<span class="na">–</span>'}</td>
+      <td class="num" data-l="İYİ %">${d.iyi!==null?d.iyi.toFixed(2):'<span class="na">–</span>'}</td>
+      <td class="num tot" data-l="CHP+İYİ %"><b>${d.chpiyi!==null?d.chpiyi.toFixed(2):'<span class="na">eksik</span>'}</b>${d.userSupplied?'<sup title="Kullanıcı tarafından sağlandı">*</sup>':''}</td>
+      <td class="num why" data-why="D" data-l="Siyasi P." data-key="${esc(key)}"><span class="v ${openWhy.has(key+'|D')?'open':''}">${d.d!==null?d.d.toFixed(2):'yok'}</span></td>
+      <td class="num scorecell" data-l="TOPLAM"><span class="score ${cls(t)}">${t.toFixed(2)}</span>
+        <div class="bar"><i style="width:${(t*10).toFixed(0)}%"></i></div></td>
+      <td class="notecell"><span class="toggle-note" data-key="${esc(key)}">${openNotes.has(key)?'gizle':'not'}</span></td>
+    </tr>`;
+    ['A','B','E','D'].forEach(code=>{
+      if(!openWhy.has(key+'|'+code)) return;
+      const meta={A:['Ankara\'ya Yakınlık','whyA','<b>Rubrik:</b> &lt;300 km = 9-10 · 300-500 km = 7-8 · 500-800 km = 5-6 · 800-1100 km = 3-4 · &gt;1100 km = 1-2. Bant karayolu mesafesiyle belirlenir; bant <i>içindeki</i> puan havalimanı/tren bağlantısı ve ilçe sapmasıyla ayarlanır.'],
+                  U:['Ankara\'dan Ulaşım Kolaylığı','whyU','<b>Rubrik:</b> Herhangi bir araçla (uçak, YHT, otobüs, özel araç) Ankara\'dan kapıdan kapıya gerçekçi seyahat süresi. 9-10 = ~3 saat altı · 7-8 = 3-3,5 saat · 5-6 = 4-5 saat · 3-4 = 5 saat üstü veya erişim mevsime bağlı. Sefer sıklığı ve kışın yol kapanma riski puanı aşağı çeker. <b>Mesafe puanından bağımsızdır:</b> Iğdır 1150 km ile mesafede 2 alırken, havalimanı şehir içinde olduğu için ulaşımda 7 alıyor.'],
+                  B:['Yaşam Kalitesi','whyB','<b>Rubrik:</b> TÜİK İllerde Yaşam Endeksi + Sanayi ve Teknoloji Bakanlığı SEGE kademesi temel alınır; üzerine iklim sertliği/rakım, il merkezi mi ilçe mi olduğu, güvenlik ve konut durumu eklenir. 9-10 = gelişmiş, ılıman, güvenli · 1-2 = en düşük gelişmişlik + sert kış veya güvenlik riski.'],
+                  E:['Sosyal Olanaklar','whyE','<b>Rubrik:</b> Üniversite varlığı, sinema/AVM/kafe, spor tesisi, doğa ve turizm, büyük şehre erişim, eş için iş imkânı, sosyal serbestlik. Metropol = 8+ · il merkezi = 4-6 · küçük ilçe = 1-3.'],
+                  D:['Siyasi Tercih (CHP+İYİ)','whyD','<b>Formül:</b> (CHP % + İYİ Parti %) ÷ 10, 31 Mart 2024 belediye başkanlığı seçimi. CHP+İYİ toplamı yüksek olan yüksek puan alır; bu iki parti dışındaki tüm oylar (AKP, MHP, DEM, YRP, BBP, DP, SP, bağımsız) karşı tarafta sayılır. Objektif bir kalite ölçüsü değildir; ağırlığını 0\'a çekerek tamamen devre dışı bırakabilirsiniz.']}[code];
+      html+=`<tr class="whyrow"><td colspan="19"><div class="whybox">
+        <button class="xbtn" data-close="${esc(key)}|${code}">×</button>
+        <h4>${meta[0]} — ${esc(d.il)} ${esc(d.hastane)}</h4>
+        <p>${esc(d[meta[1]])}</p>
+        <div class="scale">${meta[2]}</div>
+      </div></td></tr>`;
+    });
+    if(openPG.has(key)){
+      html+=`<tr class="pcrow"><td colspan="19"><div class="pcbox">
+        <button class="xbtn" data-closepg="${esc(key)}">×</button>
+        <div class="pchead"><span class="srcbadge g">GEMİNİ</span> ${esc(d.il)} — ${esc(d.hastane)} · puan <b>${d.gc}/10</b> · ${esc(d.gRol)}</div>
+        <div class="pccol plus"><h4>Artılar</h4><ul>${d.gPros.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+        <div class="pccol minus"><h4>Eksiler</h4><ul>${d.gCons.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+        ${d.gNot?`<div class="pctip">${esc(d.gNot)}</div>`:''}
+      </div></td></tr>`;
+    }
+    if(openPC.has(key)){
+      html+=`<tr class="pcrow"><td colspan="19"><div class="pcbox">
+        <button class="xbtn" data-closepc="${esc(key)}">×</button>
+        <div class="pchead"><span class="srcbadge c">CLAUDE</span> ${esc(d.il)} — ${esc(d.hastane)} · puan <b>${d.cc}/10</b></div>
+        <div class="pccol plus"><h4>Artılar</h4><ul>${d.pros.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+        <div class="pccol minus"><h4>Eksiler</h4><ul>${d.cons.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+        ${d.tip?`<div class="pctip">${esc(d.tip)}</div>`:''}
+      </div></td></tr>`;
+    }
+    if(openNotes.has(key)){
+      html+=`<tr class="noterow"><td colspan="19">${esc(d['not'])}</td></tr>`;
+    }
+  });
+  $('tb').innerHTML=html;
+
+  document.querySelectorAll('td.why').forEach(el=>{
+    el.onclick=()=>{
+      const k=el.dataset.key+'|'+el.dataset.why;
+      openWhy.has(k)?openWhy.delete(k):openWhy.add(k);
+      render();
+    };
+  });
+
+  document.querySelectorAll('.xbtn').forEach(el=>{
+    el.onclick=(ev)=>{
+      ev.stopPropagation();
+      if(el.dataset.close){ openWhy.delete(el.dataset.close); }
+      if(el.dataset.closepc){ openPC.delete(el.dataset.closepc); }
+      if(el.dataset.closepg){ openPG.delete(el.dataset.closepg); }
+      render();
+    };
+  });
+
+  document.querySelectorAll('.opendet').forEach(el=>{
+    el.onclick=(ev)=>{ ev.stopPropagation(); const k=el.dataset.det; if(detKey===k){closeDetail();} else {openDetail(k);} };
+  });
+
+  document.querySelectorAll('td.gscore').forEach(el=>{
+    el.onclick=()=>{
+      const k=el.dataset.pg;
+      openPG.has(k)?openPG.delete(k):openPG.add(k);
+      render();
+    };
+  });
+
+  document.querySelectorAll('td.cscore').forEach(el=>{
+    el.onclick=()=>{
+      const k=el.dataset.pc;
+      openPC.has(k)?openPC.delete(k):openPC.add(k);
+      render();
+    };
+  });
+
+  document.querySelectorAll('.toggle-note').forEach(el=>{
+    el.onclick=()=>{
+      const k=el.dataset.key;
+      openNotes.has(k)?openNotes.delete(k):openNotes.add(k);
+      render();
+    };
+  });
+}
+
+// ---------- detay görünümü ----------
+let detKey = null;
+function keyOf(d){ return d.il+'|'+d.hastane; }
+
+function partyBox(d){
+  const P=d.parties||{};
+  const rows=[['AKP',P.akp],['CHP',P.chp],['İYİ',P.iyi],['MHP',P.mhp],['DEM',P.dem],['YRP',P.yrp],['BBP',P.bbp],['DP',P.dp],['SP',P.sp],['Bağımsız',P.bagimsiz]];
+  const items=rows.filter(r=>r[1]!==null&&r[1]!==undefined)
+    .map(r=>`<div class="pparty ${(r[0]==='CHP'||r[0]==='İYİ')?'hi':''}"><b>${r[1].toFixed(2)}</b><span>${r[0]} %</span></div>`).join('');
+  return items || '<p style="font-size:.85rem;color:var(--muted)">Parti kırılımı bulunamadı.</p>';
+}
+
+function scoreCls(v){ return v>=6.5?'s-hi':v>=4.5?'s-md':'s-lo'; }
+
+function renderDetail(){
+  const d = DATA.find(x=>keyOf(x)===detKey);
+  if(!d){ closeDetail(); return; }
+  const ordered = filtered();
+  const idx = ordered.findIndex(x=>keyOf(x)===detKey);
+  const t = d.total;
+
+  const nums = v => (v===null||v===undefined)?'<span class="na">–</span>':v.toFixed(2);
+
+  document.getElementById('detail').innerHTML = `
+    <div class="backbar">
+      <button class="backbtn" id="backBtn">← Listeye dön</button>
+      <button class="navbtn" id="prevBtn" ${idx<=0?'disabled':''}>‹ Önceki</button>
+      <button class="navbtn" id="nextBtn" ${idx<0||idx>=ordered.length-1?'disabled':''}>Sonraki ›</button>
+      <span style="font-size:.8rem;color:var(--muted)">${idx>=0?`sıralamada ${idx+1} / ${ordered.length}`:''}</span>
+    </div>
+    <div class="dhead">
+      <div class="il">${esc(d.il)} · ${d.munhal} münhal kadro</div>
+      <h2>${esc(d.hastane)}</h2>
+      <div class="meta">
+        <span>Ankara'ya ${d.km} km</span>
+        <span>Seçim bölgesi: ${esc(d.secimAd)}</span>
+        <span>Toplam puan: <b>${t.toFixed(2)}</b>/10</span>
+      </div>
+    </div>
+    <div class="dbody">
+
+      <div class="dsec">
+        <h3>Puan dökümü</h3>
+        <table class="dtab">
+          <thead><tr><th>Kriter</th><th style="text-align:center">Puan</th><th>Neden bu puan?</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Ankara'ya mesafe</td><td class="v">${d.a}</td><td>${esc(d.whyA)}</td></tr>
+            <tr><td class="k">Ankara'dan ulaşım</td><td class="v">${d.u}</td><td>${esc(d.whyU)}</td></tr>
+            <tr><td class="k">Yaşam kalitesi</td><td class="v">${d.b}</td><td>${esc(d.whyB)}</td></tr>
+            <tr><td class="k">Hastane · Claude</td><td class="v">${d.cc}</td><td>Aşağıdaki mavi kartta artı/eksi dökümü var.</td></tr>
+            <tr><td class="k">Hastane · Gemini</td><td class="v">${d.gc}</td><td>${esc(d.gRol)}</td></tr>
+            <tr><td class="k">İki kaynak farkı</td><td class="v"><span class="diff ${d.dc>0?'dp':d.dc<0?'dn':'dz'}">${d.dc>0?'+':''}${d.dc}</span></td><td>${d.dc===0?'İki kaynak aynı puanı verdi — bu satır güvenilir.':'Kaynaklar ayrışıyor. Kura öncesi İl Sağlık Müdürlüğü\'nden cerrah sayısı ve anestezi kadrosu teyidi alın.'}</td></tr>
+            <tr><td class="k">Sosyal olanaklar</td><td class="v">${d.e}</td><td>${esc(d.whyE)}</td></tr>
+            <tr><td class="k">Siyasi tercih</td><td class="v">${nums(d.d)}</td><td>${esc(d.whyD)}</td></tr>
+            <tr><td class="k">TOPLAM</td><td class="v"><span class="score ${scoreCls(t)}">${t.toFixed(2)}</span></td><td>Ağırlıklı ortalama. Ağırlıkları listede değiştirebilirsiniz.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="dsec">
+        <h3>Teknik künye</h3>
+        <table class="dtab">
+          <tbody>
+            <tr><td class="k">Rol / basamak</td><td>${esc(d.tech.rol)}</td></tr>
+            <tr><td class="k">Yatak kapasitesi</td><td>${esc(d.tech.yatak)}${d.tech.kesin.includes('yatak')?' <span class="kbadge">kesin</span>':' <span class="ebadge">tahmini</span>'}</td></tr>
+            <tr><td class="k">Genel cerrah sayısı</td><td>${d.tech.cerrah.includes('1 —')?`<span class="alarm">${esc(d.tech.cerrah)}</span> · 7/24 aralıksız icap nöbeti riski`:esc(d.tech.cerrah)}${(!d.tech.kesin.includes('cerrah'))?' <span class="ebadge">norm kadro tahmini</span>':''}</td></tr>
+            <tr><td class="k">Anestezi uzmanı</td><td>${d.tech.anestezi.includes('YOK')?`<span class="alarm">${esc(d.tech.anestezi)}</span> · elektif cerrahi pratikte durur`:esc(d.tech.anestezi)}${(!d.tech.kesin.includes('anestezi'))?' <span class="ebadge">norm kadro tahmini</span>':''}</td></tr>
+            <tr><td class="k">Yoğun bakım</td><td>${d.tech.ybu==='YOK'?'<span class="alarm">YOK</span> · komplike vakada sevk zorunlu':esc(d.tech.ybu)}${d.tech.kesin.includes('ybu')?' <span class="kbadge">kesin</span>':''}</td></tr>
+            <tr><td class="k">BT / MR</td><td>${d.tech.btmr==='Yok'?'<span class="alarm">Yok</span> · gece akut karında teşhis sorunu':esc(d.tech.btmr)}</td></tr>
+            <tr><td class="k">Ek notlar</td><td>${esc(d.tech.ek)}</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:.79rem;color:var(--muted);margin:8px 0 0;line-height:1.5">
+          Kaynak: Gemini teknik tablosu. <span class="kbadge">kesin</span> işaretli değerler doğrudan doğrulandı;
+          <span class="ebadge">norm kadro tahmini</span> işaretliler hastanenin rol grubuna (A1/A2/B/C/D) göre
+          Sağlık Bakanlığı norm kadrosundan öngörüldü — kura öncesi teyit edin.
+        </p>
+      </div>
+
+      <div class="dsec">
+        <h3>Hastane değerlendirmesi — iki bağımsız kaynak</h3>
+        <div class="dsplit">
+          <div class="dcard c">
+            <div class="ch">CLAUDE · ${d.cc}/10</div>
+            <div class="cb">
+              <div class="plus"><h5>Artılar</h5><ul>${d.pros.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+              <div class="minus"><h5>Eksiler</h5><ul>${d.cons.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+              ${d.tip?`<div class="dtip">${esc(d.tip)}</div>`:''}
+            </div>
+          </div>
+          <div class="dcard g">
+            <div class="ch">GEMİNİ · ${d.gc}/10</div>
+            <div class="cb">
+              <p class="role">${esc(d.gRol)}</p>
+              <div class="plus"><h5>Artılar</h5><ul>${d.gPros.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+              <div class="minus"><h5>Eksiler</h5><ul>${d.gCons.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+              ${d.gNot?`<div class="dtip">${esc(d.gNot)}</div>`:''}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dsec">
+        <h3>31 Mart 2024 yerel seçim — tam parti kırılımı</h3>
+        <div class="partygrid">${partyBox(d)}</div>
+        <p style="font-size:.84rem;color:var(--muted);margin-top:10px;line-height:1.55">
+          CHP + İYİ toplamı: <b style="color:var(--accent)">${d.chpiyi!==null?d.chpiyi.toFixed(2)+'%':'veri yok'}</b>
+          ${d.userSupplied?' · bu toplam sizin tarafınızdan sağlandı':' · kaynak: yüklediğiniz seçim tablosu'}
+          → siyasi puan ${nums(d.d)}
+        </p>
+      </div>
+
+      <div class="dsec">
+        <h3>Genel değerlendirme</h3>
+        <p style="font-size:.88rem;line-height:1.65;margin:0">${esc(d['not'])}</p>
+      </div>
+
+    </div>`;
+
+  document.getElementById('backBtn').onclick = closeDetail;
+  const pb=document.getElementById('prevBtn'), nb=document.getElementById('nextBtn');
+  if(pb) pb.onclick = ()=>{ if(idx>0){ detKey=keyOf(ordered[idx-1]); renderDetail(); window.scrollTo(0,0);} };
+  if(nb) nb.onclick = ()=>{ if(idx>=0&&idx<ordered.length-1){ detKey=keyOf(ordered[idx+1]); renderDetail(); window.scrollTo(0,0);} };
+}
+
+function openDetail(k){
+  detKey=k;
+  document.getElementById('listview').style.display='none';
+  document.querySelector('.panel').parentNode.querySelectorAll('.panel').forEach(p=>p.style.display='none');
+  document.getElementById('stats').style.display='none';
+  document.querySelector('details.rubric').style.display='none';
+  document.getElementById('detail').style.display='block';
+  compute();
+  renderDetail();
+  window.scrollTo(0,0);
+}
+function closeDetail(){
+  detKey=null;
+  document.getElementById('detail').style.display='none';
+  document.querySelectorAll('.panel').forEach(p=>p.style.display='');
+  document.getElementById('stats').style.display='';
+  document.querySelector('details.rubric').style.display='';
+  document.getElementById('listview').style.display='';
+  render();
+  window.scrollTo(0,0);
+}
+window.addEventListener('keydown',e=>{ if(e.key==='Escape'&&detKey) closeDetail(); });
+
+document.querySelectorAll('thead th[data-k]').forEach(th=>{
+  th.onclick=()=>{
+    const k=th.dataset.k;
+    if(sortK===k) sortD*=-1; else {sortK=k; sortD=(k==='il'||k==='hastane')?1:-1;}
+    document.querySelectorAll('thead .ar').forEach(a=>a.textContent='');
+    th.querySelector('.ar').textContent=sortD===1?'▲':'▼';
+    render();
+  };
+});
+
+KEYS.forEach(([k,id])=>{
+  $(id).oninput=()=>{
+    $('lw-'+k).textContent=parseFloat($(id).value).toFixed(1)+'×';
+    render();
+  };
+});
+['q','fKm','fMunhal','fAkp','fRisk','mSort'].forEach(id=>{ $(id).oninput=render; $(id).onchange=render; });
+
+function setW(vals){
+  KEYS.forEach(([k,id],idx)=>{ $(id).value=vals[idx]; $('lw-'+k).textContent=vals[idx].toFixed(1)+'×'; });
+  sortK='total'; sortD=-1;
+  document.querySelectorAll('thead .ar').forEach(a=>a.textContent='');
+  render();
+}
+$('closeAll').onclick=()=>{ openWhy.clear(); openPC.clear(); openPG.clear(); openNotes.clear(); render(); };
+$('srcC').onchange=render;
+$('mSort').onchange=()=>{
+  const k=$('mSort').value;
+  sortK=k; sortD=(k==='il'||k==='km')?1:-1;
+  document.querySelectorAll('thead .ar').forEach(a=>a.textContent='');
+  render();
+};
+$('reset').onclick=()=>setW([1,1,1,1,1,1]);
+$('onlyPol').onclick=()=>setW([0,0,0,0,0,1]);
+$('onlyWork').onclick=()=>setW([0.5,1,0,1.5,0,0]);
+
+render();
+</script>
+</body>
+</html>
